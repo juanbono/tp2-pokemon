@@ -1,15 +1,15 @@
 package utn.frba.pokemon
 
-//ver si hay alguna otra forma para genero
-object  Genero {
-  val masculino : Short = 0
-  val femenino : Short = 1
-}
+//sealed dice que ayuda al motor de inferencia a la hora del  pattern matching y los pongo como case objects para lo mismo 
+// y porque no toman parametros ni nada.
+sealed abstract class Genero  
+case object Masculino extends Genero
+case object Femenino extends Genero
 
 case class Pokemon (
     val nivel : Int = 1, 
     val experiencia : Int = 0, 
-    val genero : Int = Genero.masculino, 
+    val genero : Genero = Masculino, 
     val energia : Int = 0, 
     val energiaMaxima : Int = 100, 
     val peso : Float = 0, 

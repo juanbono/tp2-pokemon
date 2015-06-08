@@ -28,7 +28,7 @@ class RealizarUnAtaque(ataque : Ataque) extends Actividad{
       else if (ataque.tipo == pokemonResultado.especie.tipoPrincipal)
         pokemonResultado = pokemonResultado.copy(experiencia = pokemonResultado.experiencia + 50)
       else if (Some(ataque.tipo) == pokemonResultado.especie.tipoSecundario)
-       pokemonResultado = pokemonResultado.copy(experiencia = pokemonResultado.experiencia + (if (pokemonResultado.genero == Genero.masculino) 20 else 40))  
+       pokemonResultado = pokemonResultado.copy(experiencia = pokemonResultado.experiencia + (if (pokemonResultado.genero == Masculino) 20 else 40))  
        
       pokemonResultado = ataque.ejecutar(pokemonResultado)
     }
