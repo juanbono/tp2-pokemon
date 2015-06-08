@@ -14,9 +14,10 @@ case class Pokemon (
     val energiaMaxima : Int = 100, 
     val peso : Float = 0, 
     val fuerza : Int = 0,
+    val velocidad : Int = 0,
     val especie : Especie,
     val estado : Estado = EstadoNormal,
-    val ataques : Option[List[Ataque]])
+    val ataques : Option[List[Ataque]] = None)
     {
    
 
