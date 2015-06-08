@@ -17,9 +17,7 @@ case class Pokemon (
     val velocidad : Int = 0,
     val especie : Especie,
     val estado : Estado = EstadoNormal,
-    val ataques : Option[List[Ataque]] = None)
-    {
-   
+    val ataques : Option[List[Ataque]] = None) {   
 
    def experienciaNivel(nivel : Int) : Int = {
      nivel match {
@@ -28,13 +26,16 @@ case class Pokemon (
      }
    }
    
-   def subirNivel : Pokemon = {
-     if (experiencia >= experienciaNivel(nivel + 1))
-       copy(nivel = nivel + 1)
-     else
-       this
-   }
+  def subirNivel : Pokemon = {
+    if (experiencia >= experienciaNivel(nivel + 1))
+      especie.condicionEvolucion.fold(this)(_.subirNivel(copy(nivel = nivel + 1)))
+    else
+      this
+  }
    
+  def evolucionar : Pokemon = {
+    especie.evolucion.fold(this)(nuevaEspecie => copy(especie = nuevaEspecie))
+  }
 }
 
 

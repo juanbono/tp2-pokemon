@@ -1,66 +1,70 @@
 package utn.frba.pokemon
 
-//si esta estructura funciona implementar todos los tipos
-abstract class Tipo {
-  def mataA : List[Tipo] 
+case class Tipo()
+
+object Lunar extends Tipo
+
+// Tipos que puede tener una especie de pokemon.
+abstract class TipoPokemon extends Tipo {
+  def mataA : List[TipoPokemon] 
 }
 
-case object Fuego extends Tipo {
-  def mataA : List[Tipo] = List(Planta, Hielo, Bicho)
+object Fuego extends TipoPokemon {
+  def mataA : List[TipoPokemon] = List(Planta, Hielo, Bicho)
 }
 
-case object Agua extends Tipo {
-  def mataA : List[Tipo] = List(Fuego, Tierra, Roca)
+object Agua extends TipoPokemon {
+  def mataA : List[TipoPokemon] = List(Fuego, Tierra, Roca)
 }
 
-case object Planta extends Tipo {
-  def mataA : List[Tipo] = List(Agua, Tierra, Roca)
+object Planta extends TipoPokemon {
+  def mataA : List[TipoPokemon] = List(Agua, Tierra, Roca)
 }
 
-case object Tierra extends Tipo {
-  def mataA : List[Tipo] = List(Fuego, Electrico, Veneno, Roca)
+object Tierra extends TipoPokemon {
+  def mataA : List[TipoPokemon] = List(Fuego, Electrico, Veneno, Roca)
 }
 
-case object Hielo extends Tipo {
-  def mataA : List[Tipo] = List(Planta, Tierra, Volador, Dragon)
+object Hielo extends TipoPokemon {
+  def mataA : List[TipoPokemon] = List(Planta, Tierra, Volador, Dragon)
 }
 
-case object Roca extends Tipo {
-  def mataA : List[Tipo] = List(Fuego, Hielo, Volador, Bicho)
+object Roca extends TipoPokemon {
+  def mataA : List[TipoPokemon] = List(Fuego, Hielo, Volador, Bicho)
 }
 
-case object Electrico extends Tipo {
-  def mataA : List[Tipo] = List(Agua, Volador)
+object Electrico extends TipoPokemon {
+  def mataA : List[TipoPokemon] = List(Agua, Volador)
 }
 
-case object Psiquico extends Tipo {
-  def mataA : List[Tipo] = List(Pelea, Veneno)
+object Psiquico extends TipoPokemon {
+  def mataA : List[TipoPokemon] = List(Pelea, Veneno)
 }
 
-case object Pelea extends Tipo {
-  def mataA : List[Tipo] = List(Normal, Hielo, Roca)
+object Pelea extends TipoPokemon {
+  def mataA : List[TipoPokemon] = List(Normal, Hielo, Roca)
 }
 
-case object Fantasma extends Tipo {
-  def mataA : List[Tipo] = List(Psiquico, Fantasma)
+object Fantasma extends TipoPokemon {
+  def mataA : List[TipoPokemon] = List(Psiquico, Fantasma)
 }
 
-case object Volador extends Tipo {
-  def mataA : List[Tipo] = List(Planta, Pelea, Bicho)
+object Volador extends TipoPokemon {
+  def mataA : List[TipoPokemon] = List(Planta, Pelea, Bicho)
 }
 
-case object Bicho extends Tipo {
-  def mataA : List[Tipo] = List(Planta, Psiquico)
+object Bicho extends TipoPokemon {
+  def mataA : List[TipoPokemon] = List(Planta, Psiquico)
 }
 
-case object Veneno extends Tipo {
-  def mataA : List[Tipo] = List(Planta)
+object Veneno extends TipoPokemon {
+  def mataA : List[TipoPokemon] = List(Planta)
 }
 
-case object Dragon extends Tipo {
-  def mataA : List[Tipo] = List(Dragon)
+object Dragon extends TipoPokemon {
+  def mataA : List[TipoPokemon] = List(Dragon)
 }
 
-case object Normal extends Tipo {
-  def mataA : List[Tipo] = List()
+object Normal extends TipoPokemon {
+  def mataA : List[TipoPokemon] = List()
 }
