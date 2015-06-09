@@ -1,70 +1,70 @@
 package utn.frba.pokemon
 
-case class Tipo()
-
-object Lunar extends Tipo
+case object Lunar {
+  def mataA(tipo : TipoPokemon) : Boolean = false
+}
 
 // Tipos que puede tener una especie de pokemon.
-abstract class TipoPokemon extends Tipo {
-  def mataA : List[TipoPokemon] 
+abstract class TipoPokemon {
+  def mataA(tipo : TipoPokemon) : Boolean 
 }
 
-object Fuego extends TipoPokemon {
-  def mataA : List[TipoPokemon] = List(Planta, Hielo, Bicho)
+case object Fuego extends TipoPokemon {
+  def mataA(tipo : TipoPokemon) : Boolean = List(Planta, Hielo, Bicho).contains(tipo)
 }
 
-object Agua extends TipoPokemon {
-  def mataA : List[TipoPokemon] = List(Fuego, Tierra, Roca)
+case object Agua extends TipoPokemon {
+  def mataA(tipo : TipoPokemon) : Boolean = List(Fuego, Tierra, Roca).contains(tipo)
 }
 
-object Planta extends TipoPokemon {
-  def mataA : List[TipoPokemon] = List(Agua, Tierra, Roca)
+case object Planta extends TipoPokemon {
+  def mataA(tipo : TipoPokemon) : Boolean = List(Agua, Tierra, Roca).contains(tipo)
 }
 
-object Tierra extends TipoPokemon {
-  def mataA : List[TipoPokemon] = List(Fuego, Electrico, Veneno, Roca)
+case object Tierra extends TipoPokemon {
+  def mataA(tipo : TipoPokemon) : Boolean = List(Fuego, Electrico, Veneno, Roca).contains(tipo)
 }
 
-object Hielo extends TipoPokemon {
-  def mataA : List[TipoPokemon] = List(Planta, Tierra, Volador, Dragon)
+case object Hielo extends TipoPokemon {
+  def mataA(tipo : TipoPokemon) : Boolean = List(Planta, Tierra, Volador, Dragon).contains(tipo)
 }
 
-object Roca extends TipoPokemon {
-  def mataA : List[TipoPokemon] = List(Fuego, Hielo, Volador, Bicho)
+case object Roca extends TipoPokemon {
+  def mataA(tipo : TipoPokemon) : Boolean = List(Fuego, Hielo, Volador, Bicho).contains(tipo)
 }
 
-object Electrico extends TipoPokemon {
-  def mataA : List[TipoPokemon] = List(Agua, Volador)
+case object Electrico extends TipoPokemon {
+  def mataA(tipo : TipoPokemon) : Boolean = List(Agua, Volador).contains(tipo)
 }
 
-object Psiquico extends TipoPokemon {
-  def mataA : List[TipoPokemon] = List(Pelea, Veneno)
+case object Psiquico extends TipoPokemon {
+  def mataA(tipo : TipoPokemon) : Boolean = List(Pelea, Veneno).contains(tipo)
 }
 
-object Pelea extends TipoPokemon {
-  def mataA : List[TipoPokemon] = List(Normal, Hielo, Roca)
+case object Pelea extends TipoPokemon {
+  def mataA(tipo : TipoPokemon) : Boolean = List(Normal, Hielo, Roca).contains(tipo)
 }
 
-object Fantasma extends TipoPokemon {
-  def mataA : List[TipoPokemon] = List(Psiquico, Fantasma)
+case object Fantasma extends TipoPokemon {
+  def mataA(tipo : TipoPokemon) : Boolean = List(Psiquico, Fantasma).contains(tipo)
 }
 
-object Volador extends TipoPokemon {
-  def mataA : List[TipoPokemon] = List(Planta, Pelea, Bicho)
+case object Volador extends TipoPokemon {
+  def mataA(tipo : TipoPokemon) : Boolean = List(Planta, Pelea, Bicho).contains(tipo)
 }
 
-object Bicho extends TipoPokemon {
-  def mataA : List[TipoPokemon] = List(Planta, Psiquico)
+case object Bicho extends TipoPokemon {
+  def mataA(tipo : TipoPokemon) : Boolean = List(Planta, Psiquico).contains(tipo)
 }
 
-object Veneno extends TipoPokemon {
-  def mataA : List[TipoPokemon] = List(Planta)
+case object Veneno extends TipoPokemon {
+  def mataA(tipo : TipoPokemon) : Boolean = List(Planta).contains(tipo)
 }
 
-object Dragon extends TipoPokemon {
-  def mataA : List[TipoPokemon] = List(Dragon)
+case object Dragon extends TipoPokemon {
+  def mataA(tipo : TipoPokemon) : Boolean = List(Dragon).contains(tipo)
 }
 
-object Normal extends TipoPokemon {
-  def mataA : List[TipoPokemon] = List()
+case object Normal extends TipoPokemon {
+  def mataA(tipo : TipoPokemon) : Boolean = List().contains(tipo)
 }
