@@ -4,9 +4,15 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.Ignore
 
+
 class GimnasioPokemonTest {
 
 
+  @Test(expected=classOf[IllegalArgumentException])
+  def `Pokemon con valores invalidos` = {
+    val poke =  Pokemon(nivel=0, especie = new Charizard)
+  }
+  
   @Test
   def `Pokemon gana experiencia` = {
     

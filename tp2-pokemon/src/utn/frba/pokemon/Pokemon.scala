@@ -13,12 +13,17 @@ case class Pokemon (
     val energia : Int = 0, 
     val energiaMaxima : Int = 100, 
     val peso : Float = 0, 
-    val fuerza : Int = 0,
-    val velocidad : Int = 0,
+    val fuerza : Int = 1,
+    val velocidad : Int = 1,
     val especie : Especie,
     val estado : Estado = EstadoNormal,
     val ataques : Option[List[Ataque]] = None) {   
 
+    require(nivel >= 1 && nivel <= 100, "Nivel es un número de 1 a 100")
+    require(genero == Masculino || genero == Femenino, "Genero puede ser Masculino o Femenino")
+    require(fuerza >= 1 && fuerza <= 100, "Fuerza es un número de 1 a 100")
+    require(velocidad >= 1 && velocidad <= 100, "Velocidad es un número de 1 a 100")
+  
    def experienciaNivel(nivel : Int) : Int = {
      nivel match {
       case 1 => 0
