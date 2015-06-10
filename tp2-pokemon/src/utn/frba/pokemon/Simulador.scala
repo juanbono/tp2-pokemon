@@ -17,19 +17,13 @@ object Simulador {
     actividadActual match {
 
       case RealizarUnAtaque(ataque @ _) => ataque match {
-        case _ if (ataque.tipo == Dragon) => ataque.ejecutar(estadoAnterior, 80)
-
-        case AtaqueConEstado(tipo, _, _, f) if (tipo == p.especie.tipoPrincipal) => ataque.ejecutar(estadoAnterior, 50)
-        case AtaqueConEstado(tipo, _, _, f) if ((tipo == p.especie.tipoSecundario) && (p.genero == Masculino)) => ataque.ejecutar(estadoAnterior, 20)
-        case AtaqueConEstado(tipo, _, _, f) if ((tipo == p.especie.tipoSecundario) && (p.genero == Femenino)) => ataque.ejecutar(estadoAnterior, 40)
-
-        case AtaqueSinEstado(tipo, _, _, f) if (tipo == p.especie.tipoPrincipal) => ataque.ejecutar(estadoAnterior, 50)
-        case AtaqueSinEstado(tipo, _, _, f) if ((tipo == p.especie.tipoSecundario) && (p.genero == Masculino)) => ataque.ejecutar(estadoAnterior, 20)
-        case AtaqueSinEstado(tipo, _, _, f) if ((tipo == p.especie.tipoSecundario) && (p.genero == Femenino)) => ataque.ejecutar(estadoAnterior, 40)
-
+        case _ if (ataque.tipo == Dragon)                         => ataque.ejecutar(estadoAnterior, 80)
+        case _ if p.esTipoPrincipal(ataque.tipo)                  => ataque.ejecutar(estadoAnterior, 50)
+        case _ if (p.esTipoSecundario(ataque.tipo) && p.esMacho)  => ataque.ejecutar(estadoAnterior, 20)
+        case _ if (p.esTipoSecundario(ataque.tipo) && p.esHembra) => ataque.ejecutar(estadoAnterior, 40)
         // casos de fallo
-        case _ if !(p.ataques.contains(ataque)) => KO(p, "no conoce el ataque")
-        case _ if (ataque.puntosDeAtaque < 0) => KO(p, "no tiene suficientes PA")
+        case _ if !(p.ataques.contains(ataque))                   => KO(p, "no conoce el ataque")
+        case _ if (ataque.puntosDeAtaque < 0)                     => KO(p, "no tiene suficientes PA")
       }
 
       case ComerZinc => estadoAnterior.map { p =>
@@ -43,16 +37,23 @@ object Simulador {
       }
 
       case LevantarPesas(kilos) => estadoAnterior match {
-        case _ if ((p.especie.tipoPrincipal == Pelea) || (p.especie.tipoSecundario == Pelea)) => estadoAnterior.map { _ => estadoAnterior.pokemon.copy(experiencia = estadoAnterior.pokemon.experiencia + 2 * kilos) }
+        case _ if p.algunTipoEs(Pelea) => estadoAnterior.map { _ => estadoAnterior.pokemon.subirExperiencia(2 * kilos)}
         case _ if (p.fuerza * 10 < kilos) => Paralizado(estadoAnterior.pokemon)
         case _ if estadoAnterior.isInstanceOf[Paralizado] => KO(estadoAnterior.pokemon, "El pokemon quedo KO")
 
       }
 
       case Nadar(minutos) => estadoAnterior match {
-        case _ if (p.especie.tipoPrincipal == Agua) => estadoAnterior.map { _ => estadoAnterior.pokemon.copy(velocidad = estadoAnterior.pokemon.velocidad + (minutos % 60), experiencia = estadoAnterior.pokemon.experiencia + 200, energia = estadoAnterior.pokemon.energia - minutos) }
-        case _ if ((Agua.mataA.contains(p.especie.tipoPrincipal)) || (Agua.mataA.contains(p.especie.tipoSecundario))) => KO(estadoAnterior.pokemon, "El pokemon perdia contra el agua")
-        case _ => estadoAnterior.map { _ => estadoAnterior.pokemon.copy(experiencia = estadoAnterior.pokemon.experiencia + 200, energia = estadoAnterior.pokemon.energia - minutos) }
+        case _ if p.esTipoPrincipal(Agua) => estadoAnterior.map { _ =>
+          val p1 = estadoAnterior.pokemon.subirVelocidad(minutos % 60);
+          val p2 = p1.subirExperiencia(200);
+          p2.bajarEnergia(minutos) // fijarse como componer estas acciones
+        }
+        case _ if ((Agua.mataA(p.tipoPrincipal)) || (Agua.mataA(p.tipoSecundario))) => KO(estadoAnterior.pokemon, "El pokemon perdia contra el agua")
+        case _ => estadoAnterior.map { _ =>
+          val p1 = estadoAnterior.pokemon.subirExperiencia(200);
+          p1.bajarEnergia(minutos)
+        }
       }
 
       case UsarAntidoto => estadoAnterior match {
@@ -69,9 +70,9 @@ object Simulador {
       case otra =>
         estadoAnterior.map { p =>
           val pSiguiente = otra match {
-            case UsarPocion  => p.copy(energia = p.energia + 50)
-            case ComerHierro => p.copy(fuerza = p.fuerza + 5)
-            case ComerCalcio => p.copy(velocidad = p.velocidad + 5)
+            case UsarPocion  => p.subirEnergia(50)
+            case ComerHierro => p.subirFuerza(5)
+            case ComerCalcio => p.subirVelocidad(5)
           }
           pSiguiente
         }
