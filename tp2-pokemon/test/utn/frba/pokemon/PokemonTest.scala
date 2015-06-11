@@ -5,8 +5,11 @@ import org.junit.Assert.assertTrue
 import org.junit.Assert.assertFalse
 import org.junit.Test
 import org.junit.Ignore
+
+// En esta clase se testea el modelo de pokemon y actividades individualmente
+
 class EvolucionTest {
-  
+
   
   @Test
     def `Pokemon con valores invalidos` = {

@@ -9,6 +9,8 @@ import utn.frba.pokemon._
 import org.junit.Before
 import org.junit.runner.RunWith
 
+// En esta clase se testea el simulador, rutinas, analizador de rutinas
+
 class GimnasioTest {
 
   val reposar = new ReporsarAtaque 
@@ -103,4 +105,68 @@ class GimnasioTest {
     val resul = Simulador.entrenar(unSquartle,RealizarUnAtaque(chorroDeAguaDelRiachuelo),UsarAntidoto)
     assert(resul.isInstanceOf[EstadoNormal])
   }
+  
+  //Tests con rutinas
+  @Test
+  def `Rutina que ejecuta normalmente` = {
+    val pokemon =  Pokemon(nivel = 1, experiencia = 0, especie = Charizard, fuerza = 10)
+    val rutina = new Rutina(nombre="Rutina 1", actividades = UsarPocion, UsarPocion, ComerHierro)
+    val resultado = rutina.ejecutar(pokemon)
+    
+    assertEquals(EstadoNormal(resultado.pokemon), resultado.estado)
+    assertEquals(100, resultado.pokemon.energia)
+    assertEquals(15, resultado.pokemon.fuerza)
+  }
+  
+
+  @Test
+  def `Rutina que no puede ejecutar` = {
+    val pokemon =  Pokemon(nivel = 1, experiencia = 0, especie = Charizard, fuerza = 10)
+    val rutina = new Rutina(nombre="Rutina 1", actividades = RealizarUnAtaque(mordida))
+    val resultado = rutina.ejecutar(pokemon)
+    
+    assertEquals(EstadoActividadNoEjecutada(resultado.pokemon, "Pokemon no puede realizar ataque: No conoce el ataque %s".format(mordida.getClass.toString())), resultado.estado)
+  }
+  
+  //Tests Analizador de rutinas con criterios
+  @Test
+  def `Obtener mejor rutina que obtenga nivel mas alto para un pokemon` = { 
+    val mayorNivelCriterio = (r1 : ResultadoRutina, r2 : ResultadoRutina) => r1.pokemon.nivel > r2.pokemon.nivel
+  
+  //val menorPesolCriterio = (p1 : ResultadoRutina, p2 : ResultadoRutina) => p1.peso > p2.peso
+    val pokemon =  Pokemon(nivel = 1, experiencia = 349, especie = Charizard, fuerza = 10, ataques=List(mordida))
+    val rutina1 = new Rutina(nombre="Rutina 1", actividades = RealizarUnAtaque(enfocarse)) //no tiene el ataque
+    val rutina2 = new Rutina(nombre="Rutina 2", actividades = RealizarUnAtaque(mordida)) //tiene el ataque, le sube experiencia
+    val rutina3 = new Rutina(nombre="Rutina 3", actividades = RealizarUnAtaque(explosion)) //no tiene el ataque
+    
+    val analizador = new AnalizadorRutinas(mayorNivelCriterio, rutina1, rutina2, rutina3)
+    assertEquals("Rutina 2" , analizador.mejorRutina(pokemon))
+  }
+  
+  @Test
+  def `Obtener mejor rutina que obtenga el menor peso para un pokemon` = { 
+  
+    val menorPesoCriterio = (r1 : ResultadoRutina, r2 : ResultadoRutina) => r1.pokemon.peso < r2.pokemon.peso
+    val pokemon =  Pokemon(genero = Femenino, peso = 100,  especie = Charizard)
+    val rutina1 = new Rutina(nombre="Rutina 1", actividades = FingirIntercambio) 
+    val rutina2 = new Rutina(nombre="Rutina 2", actividades = FingirIntercambio, FingirIntercambio)
+    val rutina3 = new Rutina(nombre="Rutina 3", actividades = FingirIntercambio, FingirIntercambio, FingirIntercambio) 
+    
+    val analizador = new AnalizadorRutinas(menorPesoCriterio, rutina1, rutina2, rutina3)
+    assertEquals("Rutina 3" , analizador.mejorRutina(pokemon))
+  }
+  
+  @Test
+  def `Obtener mejor rutina que obtenga la moyor energia para un pokemon` = { 
+  
+    val mayorEnergiaCriterio = (r1 : ResultadoRutina, r2 : ResultadoRutina) => r1.pokemon.energia > r2.pokemon.energia
+    val pokemon =  Pokemon(genero = Femenino, energia = 0,  especie = Charizard)
+    val rutina1 = new Rutina(nombre="Rutina 1", actividades = FingirIntercambio, UsarPocion) 
+    val rutina2 = new Rutina(nombre="Rutina 2", actividades = FingirIntercambio, FingirIntercambio)
+    val rutina3 = new Rutina(nombre="Rutina 3", actividades = FingirIntercambio, FingirIntercambio, FingirIntercambio) 
+    
+    val analizador = new AnalizadorRutinas(mayorEnergiaCriterio, rutina1, rutina2, rutina3)
+    assertEquals("Rutina 1" , analizador.mejorRutina(pokemon))
+  }
+  
 }
