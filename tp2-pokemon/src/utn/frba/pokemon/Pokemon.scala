@@ -82,11 +82,11 @@ case class Pokemon(
   
   
   //Validaciones
-  def esNivelValido : Boolean = if (nivel < 1 || nivel > 100) false else true
-  def esFuerzaValida : Boolean = if (fuerza < 1 || fuerza > 100) false else true
+  def esNivelValido : Boolean = (nivel >= 1 && nivel <= 100) 
+  def esFuerzaValida : Boolean = (fuerza >= 1 && fuerza <= 100)
   def esGeneroValido : Boolean = if (genero != Masculino && genero != Femenino) false else true
-  def esVelocidadValida : Boolean = if (velocidad < 1 || velocidad > 100) false else true
-  def esPesoValido : Boolean = if (peso < 0 || peso > 100) false else true
+  def esVelocidadValida : Boolean = (velocidad >= 1 && velocidad <= 100) 
+  def esPesoValido : Boolean = (peso >= 0 && peso <= 100) 
   
   def esPokemonValido() : Boolean = esNivelValido && esFuerzaValida && esGeneroValido && esVelocidadValida && esPesoValido
 }
