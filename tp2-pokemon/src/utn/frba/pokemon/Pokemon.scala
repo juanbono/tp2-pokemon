@@ -24,7 +24,7 @@ case class Pokemon(
   val fuerza: Int = 1,
   val velocidad: Int = 1,
   val especie: Especie,
-  val ataques: List[Ataque]) {
+  val ataques: List[Ataque] = List(new AtaqueDefault)) {
 
   require(nivel >= 1 && nivel <= 100, "Nivel es un número de 1 a 100")
   require(genero == Masculino || genero == Femenino, "Genero puede ser Masculino o Femenino")
@@ -32,12 +32,12 @@ case class Pokemon(
   require(velocidad >= 1 && velocidad <= 100, "Velocidad es un número de 1 a 100")
 
   def tipoPrincipal: Tipo = especie.tipoPrincipal
-  def tipoSecundario: Tipo = especie.tipoSecundario
+  def tipoSecundario: Option[Tipo] = especie.tipoSecundario
   def esMacho: Boolean = genero == Masculino
   def esHembra: Boolean = genero == Femenino
   def esTipoPrincipal(t: Tipo): Boolean = t == tipoPrincipal
-  def esTipoSecundario(t: Tipo): Boolean = t == tipoSecundario
-  def algunTipoEs(t: Tipo): Boolean = (tipoPrincipal == t) || (tipoSecundario == t)
+  def esTipoSecundario(t: Tipo): Boolean = t == tipoSecundario.getOrElse(false)
+  def algunTipoEs(t: Tipo): Boolean = (tipoPrincipal == t) || (tipoSecundario.getOrElse(false) == t)
 
   def subirVelocidad(dif: Int): Pokemon = copy(velocidad = this.velocidad + dif)
   def bajarVelocidad(dif: Int): Pokemon = copy(velocidad = this.velocidad - dif)
@@ -63,11 +63,11 @@ case class Pokemon(
 
   def subirNivel: Pokemon = {
     if (experiencia >= experienciaNivel(nivel + 1))
-      especie.condicionEvolucion.fold(this)(_.subirNivel(copy(nivel = nivel + 1)))
+      especie.condicionEvolucion.fold(copy(nivel = nivel + 1))(_.subirNivel(copy(nivel = nivel + 1)))
     else
       this
   }
-  /*
+
   def usarPiedra(piedra : PiedraEvolutiva) : Pokemon = {
     especie.condicionEvolucion.fold(this)(_.usarPiedra(this, piedra))
   }
@@ -75,7 +75,7 @@ case class Pokemon(
   def intercambiar : Pokemon = {
     especie.condicionEvolucion.fold(this)(_.intercambiar(this))
   }
-  */
+
   def evolucionar: Pokemon = {
     especie.evolucion.fold(this)(nuevaEspecie => copy(especie = nuevaEspecie))
   }

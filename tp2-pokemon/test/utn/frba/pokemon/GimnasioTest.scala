@@ -11,17 +11,14 @@ import org.junit.runner.RunWith
 
 class GimnasioTest {
 
-  var charizardEspecie = Especie(1,350, 0, 0, 0, 0, 0, Fuego, Pelea)
-  var squartleEspecie = Especie(resistenciaEvolutiva = 100, pesoMaximo = 10.0, energiaMaximaInc = 12, tipoPrincipal = Agua, tipoSecundario = Normal)
-
-  val reposar = AtaqueConEstado(Fuego, 0, 20, (e: Estado) => Dormido(e.pokemon.copy(energia = e.pokemon.energiaMaxima)))
-  val enfocarse = AtaqueSinEstado(Fuego, 0, 30, (p: Pokemon) => p.copy(velocidad = p.velocidad + 1))
-  val explosion = AtaqueConEstado(Fuego, 0, 20, (e: Estado) => KO(e.pokemon, "Pokemon KO"))
-  val mordida = AtaqueSinEstado(Normal, 0, 30, (p: Pokemon) => p.copy(fuerza = p.fuerza + 1))
-  val chorroDeAguaDelRiachuelo = AtaqueConEstado(Agua,0,10, (e: Estado) => Envenenado(e.pokemon.copy(fuerza = e.pokemon.fuerza + 1)))
+  val reposar = new ReporsarAtaque 
+  val enfocarse = new EnfocarseAtaque
+  val explosion = new ExplosionAtaque
+  val mordida = new MordidaAtaque
+  val chorroDeAguaDelRiachuelo = new ChorroDeAguaDelRiachueloAtaque
   
-  val unSquartle = Pokemon(nivel = 1, experiencia = 0, especie = squartleEspecie, fuerza = 2, ataques = List(mordida,chorroDeAguaDelRiachuelo))
-  val unCharizard = Pokemon(nivel = 1, experiencia = 0, especie = charizardEspecie, fuerza = 6, ataques = List(enfocarse, reposar, explosion))
+  val unSquartle = Pokemon(nivel = 1, experiencia = 0, especie = Squirtle, fuerza = 2, ataques = List(mordida, chorroDeAguaDelRiachuelo))
+  val unCharizard = Pokemon(nivel = 1, experiencia = 0, especie = Charizard, fuerza = 6, ataques = List(enfocarse, reposar, explosion))
 
   @Test
   def `PokemonUsaPocion` = {
@@ -38,7 +35,7 @@ class GimnasioTest {
   @Test
   def `PokemonAtacaConUnAtaqueQueCambiaSuEstado` = {
     val resul = Simulador.entrenar(unCharizard, RealizarUnAtaque(reposar))
-    assert((resul.isInstanceOf[Dormido]) && (resul.pokemon.energia == resul.pokemon.energiaMaxima))
+    assert((resul.isInstanceOf[EstadoDormido]) && (resul.pokemon.energia == resul.pokemon.energiaMaxima))
   }
 
   @Test
@@ -68,14 +65,14 @@ class GimnasioTest {
   @Test
   def `CharizardNoSabeTodo` = {
     val resul = Simulador.entrenar(unCharizard, RealizarUnAtaque(mordida))
-    assert(resul.isInstanceOf[KO])
+    assert(resul.isInstanceOf[EstadoActividadNoEjecutada])
   }
 
   @Test
   def `CharizardSacaMusculos` = {
     val kilosLevantados = 2
     val resul = Simulador.entrenar(unCharizard, LevantarPesas(kilosLevantados))
-    assertEquals(unCharizard.experiencia + 2 * kilosLevantados, resul.pokemon.experiencia)
+    assertEquals(unCharizard.experiencia +  kilosLevantados, resul.pokemon.experiencia)
   }
 
   @Test
@@ -92,7 +89,7 @@ class GimnasioTest {
   def `ChariNoNadesQueTeMoris` = {
     val minutosNadados = 2
     val resul = Simulador.entrenar(unCharizard, Nadar(minutosNadados))
-    assert(resul.isInstanceOf[KO])
+    assert(resul.isInstanceOf[EstadoKO])
   }
 
   @Test

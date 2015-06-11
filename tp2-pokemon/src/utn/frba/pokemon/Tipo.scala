@@ -1,11 +1,7 @@
 package utn.frba.pokemon
 
-case object Lunar {
-  def mataA(tipo : Tipo) : Boolean = false
-}
-
 // Tipos que puede tener una especie de pokemon.
-abstract class Tipo {
+trait Tipo {
   def mataA(tipo : Tipo) : Boolean 
 }
 

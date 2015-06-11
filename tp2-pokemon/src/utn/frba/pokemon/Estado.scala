@@ -1,6 +1,7 @@
 package utn.frba.pokemon
 
-abstract class Estado {
+
+trait Estado {
   def pokemon: Pokemon
   def map(f: (Pokemon => Pokemon)): Estado
   def filter(f: (Pokemon => Boolean)): Estado
@@ -10,35 +11,44 @@ abstract class Estado {
 
 case class EstadoNormal(val pokemon: Pokemon) extends Estado {
   def map(f: (Pokemon => Pokemon)): Estado = EstadoNormal(f(pokemon))
-  def filter(f: (Pokemon => Boolean)): Estado = if (f(pokemon)) this else KO(pokemon, "p no puede hacer la actividad f") // ver si se puede pasar a string p y f
+  def filter(f: (Pokemon => Boolean)): Estado = if (f(pokemon)) this else EstadoActividadNoEjecutada(pokemon, "%s no puede hacer la actividad %s".format(pokemon, f))
   def flatMap(f: (Pokemon => Estado)): Estado = f(pokemon)
   def fold[T](e: (Pokemon => T))(f: (Pokemon => T)): T = f(pokemon)
 }
 
-case class Envenenado(val pokemon: Pokemon) extends Estado { // hay que agregarle algun efecto raro, por ahora es como EstadoNormal 
-  def map(f: (Pokemon => Pokemon)): Estado = Envenenado(f(pokemon))
-  def filter(f: (Pokemon => Boolean)): Estado = if (f(pokemon)) this else KO(pokemon, "p no puede hacer la actividad f")
+case class EstadoEnvenenado(val pokemon: Pokemon) extends Estado { // hay que agregarle algun efecto raro, por ahora es como EstadoNormal 
+  def map(f: (Pokemon => Pokemon)): Estado = EstadoEnvenenado(f(pokemon))
+  def filter(f: (Pokemon => Boolean)): Estado = if (f(pokemon)) this else EstadoActividadNoEjecutada(pokemon, "%s no puede hacer la actividad %s".format(pokemon, f))
   def flatMap(f: (Pokemon => Estado)): Estado = f(pokemon)
   def fold[T](e: (Pokemon => T))(f: (Pokemon => T)): T = f(pokemon)
 }
 
-case class Paralizado(val pokemon: Pokemon) extends Estado {
-  def map(f: (Pokemon => Pokemon)): Estado = if (f.isInstanceOf[LevantarPesas]) KO(pokemon, "p ha quedado KO al levantar pesas paralizado") else Paralizado(f(pokemon))
-  def filter(f: (Pokemon => Boolean)): Estado = if (f(pokemon)) this else KO(pokemon, "p no puede hacer la actividad f")
+case class EstadoParalizado(val pokemon: Pokemon) extends Estado {
+  def map(f: (Pokemon => Pokemon)): Estado = EstadoParalizado(f(pokemon))
+  def filter(f: (Pokemon => Boolean)): Estado = if (f(pokemon)) this else EstadoActividadNoEjecutada(pokemon, "%s no puede hacer la actividad %s".format(pokemon, f))
   def flatMap(f: (Pokemon => Estado)): Estado = f(pokemon)
   def fold[T](e: (Pokemon => T))(f: (Pokemon => T)): T = f(pokemon)
 }
 
-case class KO(val pokemon: Pokemon,val descripcion: String) extends Estado {
+case class EstadoKO(val pokemon: Pokemon,val descripcion: String) extends Estado {
   def map(f: (Pokemon => Pokemon)): Estado = this
   def filter(f: (Pokemon => Boolean)): Estado = this
   def flatMap(f: (Pokemon => Estado)): Estado = this
   def fold[T](e: (Pokemon => T))(f: (Pokemon => T)): T = e(pokemon)
 }
 
-case class Dormido(val pokemon: Pokemon, turnosDormido: Int = 1) extends Estado {
-  def map(f: (Pokemon => Pokemon)): Estado = if (turnosDormido == 3) EstadoNormal(pokemon) else Dormido(pokemon, turnosDormido + 1)
+case class EstadoDormido(val pokemon: Pokemon, turnosDormido: Int = 1) extends Estado {
+  def map(f: (Pokemon => Pokemon)): Estado = if (turnosDormido == 3) EstadoNormal(pokemon) else EstadoDormido(pokemon, turnosDormido + 1)
   def filter(f: (Pokemon => Boolean)): Estado = this
   def flatMap(f: (Pokemon => Estado)): Estado = this
   def fold[T](e: (Pokemon => T))(f: (Pokemon => T)): T = e(pokemon)
+}
+
+//Nuevo estado EstadoActividadNoEjecutada, para cuando un pokemon no puede ejecutar la actividad. No me parecia que el KO sirviera, porque puede no 
+//realizar una actividad pero si la siguiente y si esta KO no la haria.
+case class EstadoActividadNoEjecutada(val pokemon: Pokemon, val descripcion: String) extends Estado {
+  def map(f: (Pokemon => Pokemon)): Estado = EstadoNormal(f(pokemon))
+  def filter(f: (Pokemon => Boolean)): Estado = if (f(pokemon)) this else EstadoKO(pokemon, "%s no puede hacer la actividad %s".format(pokemon, f))
+  def flatMap(f: (Pokemon => Estado)): Estado = f(pokemon)
+  def fold[T](e: (Pokemon => T))(f: (Pokemon => T)): T = f(pokemon)
 }

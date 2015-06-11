@@ -1,22 +1,13 @@
 package utn.frba.pokemon
 
-case class PiedraEvolutiva(val tipo: {def mataA(tipo: Tipo): Boolean})
+abstract class PiedraEvolutiva {def tipo : Tipo}
+case class PiedraEvolutivaComun(val tipo: Tipo) extends PiedraEvolutiva
+case class PiedraLunar(val tipo: Tipo = Normal) extends PiedraEvolutiva
 
 trait CondicionEvolucion {
-  def intercambiar(pokemon: Pokemon) = pokemon.genero.intercambiar(pokemon)
-  
+  def intercambiar(pokemon: Pokemon) = pokemon
   def subirNivel(pokemon: Pokemon) = pokemon
-  
-  /*
-  def usarPiedra(pokemon: Pokemon, piedra: PiedraEvolutiva) = {
-    if (piedra.tipo.mataA(pokemon.especie.tipoPrincipal)) {
-      pokemon.copy(estado = EstadoEnvenenado)
-    } else {
-      pokemon
-    }
-  }
-  */
-
+  def usarPiedra(pokemon: Pokemon, piedra : PiedraEvolutiva) = pokemon 
 }
 
 case class SubirNivelEvolucion(val nivel : Int) extends CondicionEvolucion {
@@ -32,13 +23,11 @@ case class SubirNivelEvolucion(val nivel : Int) extends CondicionEvolucion {
 case class IntercambiarEvolucion() extends CondicionEvolucion {
   override def intercambiar(pokemon: Pokemon) = pokemon.evolucionar
 }
-/*
+
 case class UsarPiedraEvolucion() extends CondicionEvolucion {
   override def usarPiedra(pokemon: Pokemon, piedra: PiedraEvolutiva) = {
     if (pokemon.especie.tipoPrincipal.equals(piedra.tipo)) {
       pokemon.evolucionar
-    } else if (piedra.tipo.mataA(pokemon.especie.tipoPrincipal)) {
-      pokemon.copy(estado = EstadoEnvenenado)
     } else {
       pokemon
     }
@@ -47,12 +36,11 @@ case class UsarPiedraEvolucion() extends CondicionEvolucion {
 
 case class UsarPiedraLunarEvolucion() extends CondicionEvolucion {
   override def usarPiedra(pokemon: Pokemon, piedra: PiedraEvolutiva) = {
-    if (piedra.tipo.equals(Lunar)) {
-      pokemon.evolucionar
-    } else {
-      pokemon
-    }
+    piedra match {
+      case PiedraLunar(_) => pokemon.evolucionar
+      case _ => pokemon
+    }  
   }
 }
-*/
+
 
