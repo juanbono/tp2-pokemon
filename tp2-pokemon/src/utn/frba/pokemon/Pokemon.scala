@@ -26,11 +26,6 @@ case class Pokemon(
   val especie: Especie,
   val ataques: List[Ataque] = List(new AtaqueDefault)) {
 
-  require(nivel >= 1 && nivel <= 100, "Nivel es un número de 1 a 100")
-  require(genero == Masculino || genero == Femenino, "Genero puede ser Masculino o Femenino")
-  require(fuerza >= 1 && fuerza <= 100, "Fuerza es un número de 1 a 100")
-  require(velocidad >= 1 && velocidad <= 100, "Velocidad es un número de 1 a 100")
-
   def tipoPrincipal: Tipo = especie.tipoPrincipal
   def tipoSecundario: Option[Tipo] = especie.tipoSecundario
   def esMacho: Boolean = genero == Masculino
@@ -79,6 +74,21 @@ case class Pokemon(
   def evolucionar: Pokemon = {
     especie.evolucion.fold(this)(nuevaEspecie => copy(especie = nuevaEspecie))
   }
+  
+  def getPokemonValido : Option[Pokemon] = {
+    
+    Some(this)
+  }
+  
+  
+  //Validaciones
+  def esNivelValido : Boolean = if (nivel < 1 || nivel > 100) false else true
+  def esFuerzaValida : Boolean = if (fuerza < 1 || fuerza > 100) false else true
+  def esGeneroValido : Boolean = if (genero != Masculino && genero != Femenino) false else true
+  def esVelocidadValida : Boolean = if (velocidad < 1 || velocidad > 100) false else true
+  def esPesoValido : Boolean = if (peso < 0 || peso > 100) false else true
+  
+  def esPokemonValido() : Boolean = esNivelValido && esFuerzaValida && esGeneroValido && esVelocidadValida && esPesoValido
 }
 
 

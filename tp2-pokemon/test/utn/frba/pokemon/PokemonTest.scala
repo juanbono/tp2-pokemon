@@ -1,14 +1,18 @@
 package utn.frba.pokemon
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Assert.assertFalse
 import org.junit.Test
 import org.junit.Ignore
 class EvolucionTest {
   
   
-  @Test(expected=classOf[IllegalArgumentException])
+  @Test
     def `Pokemon con valores invalidos` = {
       val poke =  Pokemon(nivel=0, especie = Charizard, ataques=List(new MordidaAtaque))
+      
+      assertFalse(poke.esPokemonValido())
   }
       
   @Test
@@ -19,10 +23,10 @@ class EvolucionTest {
     var pokemon = new Pokemon(nivel=1, experiencia=300, especie = Charizard, ataques=List(ataque))
     var actividad = new RealizarUnAtaque(ataque)
     
-    pokemon = actividad.ejecutar(pokemon)    
+    val resultado = actividad.ejecutar(pokemon)    
     
-    assertEquals(2, pokemon.nivel)
-    assertEquals(350, pokemon.experiencia)
+    assertEquals(2, resultado.pokemon.nivel)
+    assertEquals(350, resultado.pokemon.experiencia)
   }
   
 
@@ -61,15 +65,23 @@ class EvolucionTest {
 	}
 
   
-  //TODO  arreglar este test, ya no se devuelven estados de esta forma, hay que usar el simulador
 	@Test
 	def `Usar piedra envenenadora` {
 		var pokemon = Pokemon(nivel = 25, especie = Poliwhirl)
 
 				var piedra = PiedraEvolutivaComun(Electrico)
 
-				pokemon = pokemon.usarPiedra(piedra)
+				val resultado = Simulador.entrenar(pokemon, UsarPiedra(piedra))
 
-				//assertEquals(pokemon.estado, EstadoEnvenenado)
+				assertEquals(EstadoEnvenenado(resultado.pokemon), resultado) 
 	}
+  
+  @Test
+  def `Actividad deja valores invalidos en pokemon` {
+    var pokemon = Pokemon(nivel = 1, velocidad = 99, especie = Poliwhirl)
+    var resultado = Simulador.entrenar(pokemon, ComerCalcio)
+    
+    assertEquals(resultado, EstadoActividadNoEjecutada(resultado.pokemon, List("La actividad produce estado invalido", "velocidad debe ser un numero de 1 a 100").toString()))
+    
+  }
 }
