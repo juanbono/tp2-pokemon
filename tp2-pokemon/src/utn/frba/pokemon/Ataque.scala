@@ -14,9 +14,19 @@ case class Ataque(val tipo : Tipo = Normal, val puntosDeAtaque : Int = 1, val ma
       case _ if pokemon.esTipoSecundario(tipo) && pokemon.esHembra => experiencia = 40
       case _ if pokemon.esTipoSecundario(tipo) && pokemon.esMacho => experiencia = 20
     }
+
+    // aca manejo lo de bajarle 1 al ataque.
+   
+    val a1 = pokemon.ataques.find((a: Ataque) => a == this).get.bajarPA
+    val listaSinAtaqueActual = pokemon.ataques.filter { a: Ataque => a != this }
+    val pok = pokemon.copy(ataques = listaSinAtaqueActual :+ a1)
     
-    efecto(pokemon.subirExperiencia(experiencia))
+    efecto(pok.subirExperiencia(experiencia).subirNivel)
   }
+  
+   def bajarPA: Ataque = this match {
+    case Ataque(t,pa,m,e) => Ataque(t,pa-1,m,e)
+  } 
 }
 
 /* Aca se definen los distintos tipos de ataques disponibles.
