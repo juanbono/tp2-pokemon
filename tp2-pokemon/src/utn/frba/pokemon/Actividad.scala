@@ -40,11 +40,11 @@ case class LevantarPesas(kilos: Int) extends Actividad {
     pokemon match {
       case _ if pokemon.algunTipoEs(Fantasma) => return EstadoActividadNoEjecutada(pokemon, "El tipo fantasma no puede levantar pesas")
       case _ if kilos / pokemon.fuerza > 10 => return EstadoParalizado(pokemon)
-      case _ if pokemon.algunTipoEs(Pelea) => experiencia = experiencia * 2
+      case _ if pokemon.algunTipoEs(Pelea) => experiencia = kilos * 2
       case _ => experiencia = kilos
     }
     
-    EstadoNormal(pokemon.copy(experiencia = experiencia).subirNivel)
+    EstadoNormal(pokemon.subirExperiencia(experiencia))
   }
 }
 
@@ -53,7 +53,7 @@ case class Nadar(minutos: Int) extends Actividad {
     
     pokemon match {
       case _ if (Agua.mataA(pokemon.tipoPrincipal) || Agua.mataA(pokemon.tipoSecundario.getOrElse(Agua))) =>  EstadoKO(pokemon, "El pokemon pierde contra el agua")
-      case _ => EstadoNormal(pokemon.subirExperiencia(200).bajarEnergia(minutos).subirVelocidad(if (pokemon.tipoPrincipal == Agua) minutos % 60 else 0).subirNivel)
+      case _ => EstadoNormal(pokemon.subirExperiencia(200).bajarEnergia(minutos).subirVelocidad(if (pokemon.tipoPrincipal == Agua) minutos % 60 else 0))
     }
     
   }
@@ -62,65 +62,64 @@ case class Nadar(minutos: Int) extends Actividad {
 case class AprenderAtaque(ataque: Ataque) extends Actividad {
   def aplicar(pokemon : Pokemon) : Estado = { 
     pokemon match {
-      case _ if pokemon.algunTipoEs(ataque.tipo) || ataque.tipo == Normal => EstadoNormal(pokemon.copy(ataques = ataque.copy(puntosDeAtaque = ataque.maximoInicialPA) :: pokemon.ataques).subirNivel)
+      case _ if pokemon.algunTipoEs(ataque.tipo) || ataque.tipo == Normal => EstadoNormal(pokemon.copy(ataques = ataque.copy(puntosDeAtaque = ataque.maximoInicialPA) :: pokemon.ataques))
       case _ => EstadoKO(pokemon, "Pokemon se lastimo trantando de aprender ataque")
     }
 
   }
 }
+
 case class UsarPiedra(piedra: PiedraEvolutiva) extends Actividad {
   def aplicar(pokemon : Pokemon) : Estado = { 
     pokemon match {
-       case _ if piedra.tipo.mataA(pokemon.tipoPrincipal) || piedra.tipo.mataA(pokemon.tipoSecundario.get) =>  EstadoEnvenenado(pokemon)
-       case _ => EstadoNormal(pokemon.usarPiedra(piedra).subirNivel)
+       case _ if piedra.tipo.mataA(pokemon.tipoPrincipal) || piedra.tipo.mataA(pokemon.tipoSecundario.getOrElse(null)) =>  EstadoEnvenenado(pokemon)
+       case _ => EstadoNormal(pokemon.especie.condicionEvolucion.fold(pokemon)(_.usarPiedra(pokemon, piedra)))
     }
   }
 }
 
 case object UsarPocion extends Actividad {
-  def aplicar(pokemon : Pokemon) : Estado = EstadoNormal(pokemon.subirEnergia(50).subirNivel)
+  def aplicar(pokemon : Pokemon) : Estado = EstadoNormal(pokemon.subirEnergia(50))
 }
 
 case object UsarAntidoto extends Actividad {
-  def aplicar(pokemon : Pokemon) : Estado = { EstadoNormal(pokemon) }
+  def aplicar(pokemon : Pokemon) : Estado = EstadoNormal(pokemon)
 }
 
 case object UsarEther extends Actividad {
-  def aplicar(pokemon : Pokemon) : Estado= { EstadoNormal(pokemon) }
+  def aplicar(pokemon : Pokemon) : Estado = EstadoNormal(pokemon)
 }
 
 case object ComerHierro extends Actividad {
-  def aplicar(pokemon : Pokemon) : Estado =  EstadoNormal(pokemon.subirFuerza(5).subirNivel)
+  def aplicar(pokemon : Pokemon) : Estado = EstadoNormal(pokemon.subirFuerza(5))
 }
 
 case object ComerCalcio extends Actividad {
-   def aplicar(pokemon : Pokemon) : Estado = EstadoNormal(pokemon.subirVelocidad(5).subirNivel)
+   def aplicar(pokemon : Pokemon) : Estado = EstadoNormal(pokemon.subirVelocidad(5))
 }
 
 case object ComerZinc extends Actividad {
   def aplicar(pokemon : Pokemon) : Estado = {
-   val ataquesModificados = pokemon.ataques.map (ataque => ataque.copy(maximoInicialPA = ataque.maximoInicialPA + 2) )
-   EstadoNormal(pokemon.copy(ataques = ataquesModificados).subirNivel)
+   val ataquesModificados = pokemon.ataques.map (ataque => ataque.copy(maximoInicialPA = ataque.maximoInicialPA + 2))
+   EstadoNormal(pokemon.copy(ataques = ataquesModificados))
   }
 }
 
 case object Descansar extends Actividad {
   def aplicar(pokemon : Pokemon) : Estado = {  
-   val ataquesModificados = pokemon.ataques.map (ataque => ataque.copy(puntosDeAtaque = ataque.maximoInicialPA) )
-   val pokemonResultado = pokemon.copy(ataques = ataquesModificados).subirNivel
+   val ataquesModificados = pokemon.ataques.map (ataque => ataque.copy(puntosDeAtaque = ataque.maximoInicialPA))
+   val pokemonResultado = pokemon.copy(ataques = ataquesModificados)
    if (pokemon.energia < pokemon.energiaMaxima / 2) EstadoDormido(pokemonResultado) else EstadoNormal(pokemonResultado)
   }
 }
 
 case object FingirIntercambio extends Actividad {
   def aplicar(pokemon : Pokemon) : Estado = {
-    if (pokemon.especie.condicionEvolucion == IntercambiarEvolucion)
-      return EstadoNormal(pokemon.intercambiar.subirNivel)
+    val nuevoPokemon = pokemon.especie.condicionEvolucion.fold(pokemon)(_.intercambiar(pokemon))
     
-    if (pokemon.esHembra)
-      EstadoNormal(pokemon.bajarPeso(10).subirNivel)
+    if (nuevoPokemon.esHembra)
+      EstadoNormal(nuevoPokemon.bajarPeso(10))
     else
-      EstadoNormal(pokemon.subirPeso(1).subirNivel)
-    
+      EstadoNormal(nuevoPokemon.subirPeso(1))
   }
 }

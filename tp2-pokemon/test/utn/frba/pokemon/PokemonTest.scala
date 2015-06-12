@@ -15,7 +15,7 @@ class EvolucionTest {
     def `Pokemon con valores invalidos` = {
       val poke =  Pokemon(nivel=0, especie = Charizard, ataques=List(new MordidaAtaque))
       
-      assertFalse(poke.esPokemonValido())
+      assertFalse(poke.esPokemonValido)
   }
       
   @Test
@@ -45,26 +45,28 @@ class EvolucionTest {
 
 	@Test
 	def `Evolucionar por usar piedra lunar` {
-		var pokemon = Pokemon(nivel = 25, especie = Nidorina)
+		var pokemon = Pokemon(
+      nivel = 25,
+      especie = Nidorina
+    )
+    
+		pokemon = Simulador.entrenar(pokemon, UsarPiedra(PiedraLunar())).fold(null)(p => p)
 
-				var piedra = new PiedraLunar
-
-				pokemon = pokemon.usarPiedra(piedra)
-
-				assertEquals(pokemon.nivel, 25)
-				assertEquals(pokemon.especie, Nidoqueen)
+		assertEquals(pokemon.nivel, 25)
+		assertEquals(pokemon.especie, Nidoqueen)
 	}
 
 	@Test
 	def `Evolucionar por usar piedra del mismo tipo` {
-		var pokemon = Pokemon(nivel = 25,	especie = Poliwhirl)
+		var pokemon = Pokemon(
+        nivel = 25,
+        especie = Poliwhirl
+    )
+    
+    pokemon = Simulador.entrenar(pokemon, UsarPiedra(PiedraEvolutivaComun(Agua))).fold(null)(p => p)
 
-				var piedra = new PiedraEvolutivaComun(Agua)
-
-				pokemon = pokemon.usarPiedra(piedra)
-
-				assertEquals(pokemon.nivel, 25)
-				assertEquals(pokemon.especie, Poliwrath)
+  	assertEquals(pokemon.nivel, 25)
+		assertEquals(pokemon.especie, Poliwrath)
 	}
 
   

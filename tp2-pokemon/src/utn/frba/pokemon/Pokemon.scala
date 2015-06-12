@@ -2,17 +2,9 @@ package utn.frba.pokemon
 
 //sealed dice que ayuda al motor de inferencia a la hora del  pattern matching y los pongo como case objects para lo mismo 
 // y porque no toman parametros ni nada.
-sealed abstract class Genero {
-  def intercambiar(pokemon: Pokemon): Pokemon
-}
-
-case object Masculino extends Genero {
-  def intercambiar(pokemon: Pokemon): Pokemon = pokemon.subirPeso(1.0)
-}
-
-case object Femenino extends Genero {
-  def intercambiar(pokemon: Pokemon): Pokemon = pokemon.bajarPeso(10.0)
-}
+sealed abstract class Genero
+case object Masculino extends Genero
+case object Femenino extends Genero
 
 case class Pokemon(
   val nivel: Int = 1,
@@ -35,19 +27,16 @@ case class Pokemon(
   def algunTipoEs(t: Tipo): Boolean = (tipoPrincipal == t) || (tipoSecundario.getOrElse(false) == t)
 
   def subirVelocidad(dif: Int): Pokemon = copy(velocidad = this.velocidad + dif)
-  def bajarVelocidad(dif: Int): Pokemon = copy(velocidad = this.velocidad - dif)
 
   def subirEnergia(dif: Int): Pokemon = copy(energia = this.energia + dif)
   def bajarEnergia(dif: Int): Pokemon = copy(energia = this.energia - dif)
 
-  def subirExperiencia(dif: Int): Pokemon = copy(experiencia = this.experiencia + dif)
-  def bajarExperiencia(dif: Int): Pokemon = copy(experiencia = this.experiencia - dif)
+  def subirExperiencia(dif: Int): Pokemon = copy(experiencia = experiencia + dif).subirNivel
 
-  def bajarPeso(dif: Double): Pokemon = copy(peso = peso - dif) // Falta controlar si es menor a 0.
+  def bajarPeso(dif: Double): Pokemon = copy(peso = peso - dif)
   def subirPeso(dif: Double): Pokemon = copy(peso = peso + dif)
 
   def subirFuerza(dif: Int): Pokemon = copy(fuerza = this.fuerza + dif)
-  def bajarFuerza(dif: Int): Pokemon = copy(fuerza = this.fuerza - dif)
 
   def experienciaNivel(nivel: Int): Int = {
     nivel match {
@@ -63,20 +52,11 @@ case class Pokemon(
       this
   }
 
-  def usarPiedra(piedra : PiedraEvolutiva) : Pokemon = {
-    especie.condicionEvolucion.fold(this)(_.usarPiedra(this, piedra))
-  }
-  
-  def intercambiar : Pokemon = {
-    especie.condicionEvolucion.fold(this)(_.intercambiar(this))
-  }
-
   def evolucionar: Pokemon = {
     especie.evolucion.fold(this)(nuevaEspecie => copy(especie = nuevaEspecie))
   }
   
   def getPokemonValido : Option[Pokemon] = {
-    
     Some(this)
   }
   
@@ -84,11 +64,11 @@ case class Pokemon(
   //Validaciones
   def esNivelValido : Boolean = (nivel >= 1 && nivel <= 100) 
   def esFuerzaValida : Boolean = (fuerza >= 1 && fuerza <= 100)
-  def esGeneroValido : Boolean = if (genero != Masculino && genero != Femenino) false else true
+  def esGeneroValido : Boolean = (genero == Masculino || genero == Femenino)
   def esVelocidadValida : Boolean = (velocidad >= 1 && velocidad <= 100) 
   def esPesoValido : Boolean = (peso >= 0 && peso <= 100) 
   
-  def esPokemonValido() : Boolean = esNivelValido && esFuerzaValida && esGeneroValido && esVelocidadValida && esPesoValido
+  def esPokemonValido : Boolean = esNivelValido && esFuerzaValida && esGeneroValido && esVelocidadValida && esPesoValido
 }
 
 

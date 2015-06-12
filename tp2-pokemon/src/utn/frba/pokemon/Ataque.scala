@@ -15,7 +15,7 @@ case class Ataque(val tipo : Tipo = Normal, val puntosDeAtaque : Int = 1, val ma
       case _ if pokemon.esTipoSecundario(tipo) && pokemon.esMacho => experiencia = 20
     }
     
-    efecto(pokemon.copy(experiencia = pokemon.experiencia + experiencia).subirNivel)
+    efecto(pokemon.subirExperiencia(experiencia))
   }
 }
 
