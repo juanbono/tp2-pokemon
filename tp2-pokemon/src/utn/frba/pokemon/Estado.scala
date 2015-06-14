@@ -1,15 +1,23 @@
 package utn.frba.pokemon
 
-
+ //**************************** Estados ***********************************
+abstract class Estado 
+  case object Envenenado extends Estado
+  case class KO(msg: String) extends Estado
+  case object Paralizado extends Estado
+  case class Dormido(turnos: Int) extends Estado
+  
+  
+  
+/*
 trait Estado {
-  def pokemon: Pokemon
   def map(f: (Pokemon => Pokemon)): Estado
   def filter(f: (Pokemon => Boolean)): Estado
   def flatMap(f: (Pokemon => Estado)): Estado
   def fold[T](e: (Pokemon => T))(f: (Pokemon => T)): T
 }
 
-case class EstadoNormal(val pokemon: Pokemon) extends Estado {
+case class EstadoNormal extends Estado {
   def map(f: (Pokemon => Pokemon)): Estado = EstadoNormal(f(pokemon))
   def filter(f: (Pokemon => Boolean)): Estado = if (f(pokemon)) this else EstadoActividadNoEjecutada(pokemon, "%s no puede hacer la actividad %s".format(pokemon, f))
   def flatMap(f: (Pokemon => Estado)): Estado = f(pokemon)
@@ -52,3 +60,4 @@ case class EstadoActividadNoEjecutada(val pokemon: Pokemon, val descripcion: Str
   def flatMap(f: (Pokemon => Estado)): Estado = f(pokemon)
   def fold[T](e: (Pokemon => T))(f: (Pokemon => T)): T = f(pokemon)
 }
+*/

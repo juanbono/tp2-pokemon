@@ -1,7 +1,7 @@
 package utn.frba.pokemon
 
 //Los Ataques son un tipo de Actividad
-case class Ataque(val tipo : Tipo = Normal, val puntosDeAtaque : Int = 1, val maximoInicialPA : Int = 10, val efecto: (Pokemon => Estado) = (p: Pokemon) => EstadoNormal(p)) extends Actividad {
+case class Ataque(val tipo : Tipo = Normal, val puntosDeAtaque : Int = 1, val maximoInicialPA : Int = 10, val efecto: Actividad)  {
   
   def aplicar(pokemon : Pokemon) : Estado = {
     var experiencia = 0
@@ -21,12 +21,16 @@ case class Ataque(val tipo : Tipo = Normal, val puntosDeAtaque : Int = 1, val ma
     val listaSinAtaqueActual = pokemon.ataques.filter { a: Ataque => a != this }
     val pok = pokemon.copy(ataques = listaSinAtaqueActual :+ a1)
     
-    efecto(pok.subirExperiencia(experiencia).subirNivel)
+    efecto(pok.cambiarExperiencia(experiencia).subirNivel)
   }
   
    def bajarPA: Ataque = this match {
     case Ataque(t,pa,m,e) => Ataque(t,pa-1,m,e)
   } 
+   
+  def recuperarPA(q:Int) = copy(puntosDeAtaque = this.puntosDeAtaque + q)
+  
+  def recuperarTodosLosPA = recuperarPA(maximoInicialPA)
 }
 
 /* Aca se definen los distintos tipos de ataques disponibles.

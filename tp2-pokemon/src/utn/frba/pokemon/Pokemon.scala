@@ -16,6 +16,7 @@ case class Pokemon(
   val fuerza: Int = 1,
   val velocidad: Int = 1,
   val especie: Especie,
+  val estado: Option[Estado] = None,
   val ataques: List[Ataque] = List(new AtaqueDefault)) {
 
   def tipoPrincipal: Tipo = especie.tipoPrincipal
@@ -26,17 +27,20 @@ case class Pokemon(
   def esTipoSecundario(t: Tipo): Boolean = t == tipoSecundario.getOrElse(false)
   def algunTipoEs(t: Tipo): Boolean = (tipoPrincipal == t) || (tipoSecundario.getOrElse(false) == t)
 
-  def subirVelocidad(dif: Int): Pokemon = copy(velocidad = this.velocidad + dif)
+  
+  def cambiarEstado(e:Option[Estado]):Pokemon = e match {
+    case None => copy(estado = None)
+    case Some(s) => copy(estado = Some(s))
+  }
+  def cambiarVelocidad(dif: Int): Pokemon = copy(velocidad = this.velocidad + dif)
 
-  def subirEnergia(dif: Int): Pokemon = copy(energia = this.energia + dif)
-  def bajarEnergia(dif: Int): Pokemon = copy(energia = this.energia - dif)
+  def cambiarEnergia(dif: Int): Pokemon = copy(energia = this.energia + dif)
+
 
   def subirExperiencia(dif: Int): Pokemon = copy(experiencia = experiencia + dif).subirNivel
+  def cambiarPeso(dif: Double): Pokemon = copy(peso = peso + dif)
 
-  def bajarPeso(dif: Double): Pokemon = copy(peso = peso - dif)
-  def subirPeso(dif: Double): Pokemon = copy(peso = peso + dif)
-
-  def subirFuerza(dif: Int): Pokemon = copy(fuerza = this.fuerza + dif)
+  def cambiarFuerza(dif: Int): Pokemon = copy(fuerza = this.fuerza + dif)
 
   def experienciaNivel(nivel: Int): Int = {
     nivel match {

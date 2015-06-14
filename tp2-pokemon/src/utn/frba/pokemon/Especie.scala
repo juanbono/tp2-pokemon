@@ -1,5 +1,5 @@
 package utn.frba.pokemon
-
+import utn.frba.pokemon._
 case class Especie (
     val id: Int = 0, // MissingNo.
     val resistenciaEvolutiva: Int = 10,

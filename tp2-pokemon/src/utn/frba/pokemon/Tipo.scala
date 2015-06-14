@@ -1,5 +1,5 @@
 package utn.frba.pokemon
-
+/*
 // Tipos que puede tener una especie de pokemon.
 trait Tipo {
   def mataA(tipo : Tipo) : Boolean 
@@ -64,3 +64,4 @@ case object Dragon extends Tipo {
 case object Normal extends Tipo {
   def mataA(tipo : Tipo) : Boolean = List().contains(tipo)
 }
+*/
