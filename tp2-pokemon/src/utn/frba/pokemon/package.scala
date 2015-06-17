@@ -1,7 +1,7 @@
 package utn.frba
 
 import utn.frba.pokemon._
-
+// Averiguar si es util/copado poner todo en un package object.
 package object simulador {
 
   //**************************** Tipos *******************************
@@ -25,7 +25,25 @@ package object simulador {
   lazy val dragon: Tipo = Tipo(List(dragon))
   lazy val normal: Tipo = Tipo(List())
 
-  //**************************** Actividades *******************************
+  //**************************** Ataques *******************************
+
+  //**************************** Especie *******************************
+  case class Especie(
+    val id: Int = 0, // MissingNo.
+    val resistenciaEvolutiva: Int = 10,
+    val pesoMaximo: Double = 0,
+    val energiaMaximaInc: Int = 0,
+    val pesoInc: Double = 0,
+    val fuerzaInc: Int = 0,
+    val velocidadInc: Int = 0,
+    val tipoPrincipal: Tipo,
+    val tipoSecundario: Option[Tipo] = None,
+    val evolucion: Option[Especie] = None,
+    val condicionEvolucion: Option[CondicionEvolucion] = None)
+
+  //**************************** Pokemon *******************************
+
+  //**************************** Actividades ***************************
 
   type Actividad = Pokemon => Pokemon
 
@@ -34,14 +52,23 @@ package object simulador {
   val usarEther: Actividad = p => if (p.estado.get != KO) p.cambiarEstado(None) else p
   val comerHierro: Actividad = p => p.cambiarFuerza(5)
   val comerCalcio: Actividad = p => p.cambiarVelocidad(5)
-  val comerZinc: Actividad = p => p.copy(ataques = p.ataques.map {a => a.copy(maximoInicialPA = a.maximoInicialPA + 2)})
+  val comerZinc: Actividad = p => p.copy(ataques = p.ataques.map { a => a.copy(maximoInicialPA = a.maximoInicialPA + 2) })
   val descansar: Actividad = { p =>
     val pokemon = p.estado match {
       case None if (p.energia < p.energiaMaxima / 2) => p.cambiarEstado(Some(Dormido(0))).copy(ataques = p.ataques.map { a => a.recuperarTodosLosPA })
       case _                                         => p.copy(ataques = p.ataques.map { a => a.recuperarTodosLosPA })
     }
-   pokemon
+    pokemon
   }
+  val fingirIntercambio: Actividad = { p =>
+    val nuevoPokemon = pokemon.especie.condicionEvolucion.fold(pokemon)(_.intercambiar(pokemon))
+    // hay qe pasar pokemon y especie al package parece xD (nota mental: fijarme si es realmente necesario) 
+    if (nuevoPokemon.esHembra)
+      nuevoPokemon.bajarPeso(10)
+    else
+      nuevoPokemon.subirPeso(1)
+  }
+  //**************************** Simulador *******************************
 }
 
 

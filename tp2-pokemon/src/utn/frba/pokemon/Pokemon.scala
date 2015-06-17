@@ -18,7 +18,9 @@ case class Pokemon(
   val especie: Especie,
   val estado: Option[Estado] = None,
   val ataques: List[Ataque] = List(new AtaqueDefault)) {
-
+  // pasar pokemon al package, ver las dependencias entre los atributos del pokemon ,cuales son calculables y cuales no. 
+  // dado un pokemon de una especie determinada y con una cantidad de experiencia determinada se deberia poder calcular su fuerza,
+  // velocidad, etc (sin tener en cuenta las actividades que podria haber realizado) 
   def tipoPrincipal: Tipo = especie.tipoPrincipal
   def tipoSecundario: Option[Tipo] = especie.tipoSecundario
   def esMacho: Boolean = genero == Masculino
@@ -27,15 +29,13 @@ case class Pokemon(
   def esTipoSecundario(t: Tipo): Boolean = t == tipoSecundario.getOrElse(false)
   def algunTipoEs(t: Tipo): Boolean = (tipoPrincipal == t) || (tipoSecundario.getOrElse(false) == t)
 
-  
-  def cambiarEstado(e:Option[Estado]):Pokemon = e match {
-    case None => copy(estado = None)
+  def cambiarEstado(e: Option[Estado]): Pokemon = e match {
+    case None    => copy(estado = None)
     case Some(s) => copy(estado = Some(s))
   }
   def cambiarVelocidad(dif: Int): Pokemon = copy(velocidad = this.velocidad + dif)
 
   def cambiarEnergia(dif: Int): Pokemon = copy(energia = this.energia + dif)
-
 
   def subirExperiencia(dif: Int): Pokemon = copy(experiencia = experiencia + dif).subirNivel
   def cambiarPeso(dif: Double): Pokemon = copy(peso = peso + dif)
@@ -59,20 +59,19 @@ case class Pokemon(
   def evolucionar: Pokemon = {
     especie.evolucion.fold(this)(nuevaEspecie => copy(especie = nuevaEspecie))
   }
-  
-  def getPokemonValido : Option[Pokemon] = {
+
+  def getPokemonValido: Option[Pokemon] = {
     Some(this)
   }
-  
-  
+
   //Validaciones
-  def esNivelValido : Boolean = (nivel >= 1 && nivel <= 100) 
-  def esFuerzaValida : Boolean = (fuerza >= 1 && fuerza <= 100)
-  def esGeneroValido : Boolean = (genero == Masculino || genero == Femenino)
-  def esVelocidadValida : Boolean = (velocidad >= 1 && velocidad <= 100) 
-  def esPesoValido : Boolean = (peso >= 0 && peso <= 100) 
-  
-  def esPokemonValido : Boolean = esNivelValido && esFuerzaValida && esGeneroValido && esVelocidadValida && esPesoValido
+  def esNivelValido: Boolean = (nivel >= 1 && nivel <= 100)
+  def esFuerzaValida: Boolean = (fuerza >= 1 && fuerza <= 100)
+  def esGeneroValido: Boolean = (genero == Masculino || genero == Femenino)
+  def esVelocidadValida: Boolean = (velocidad >= 1 && velocidad <= 100)
+  def esPesoValido: Boolean = (peso >= 0 && peso <= 100)
+
+  def esPokemonValido: Boolean = esNivelValido && esFuerzaValida && esGeneroValido && esVelocidadValida && esPesoValido
 }
 
 
