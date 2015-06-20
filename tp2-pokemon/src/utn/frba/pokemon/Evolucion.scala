@@ -2,7 +2,7 @@ package utn.frba.pokemon
 
 abstract class PiedraEvolutiva {def tipo : Tipo}
 case class PiedraEvolutivaComun(val tipo: Tipo) extends PiedraEvolutiva
-case class PiedraLunar(val tipo: Tipo = Normal) extends PiedraEvolutiva
+case class PiedraLunar(val tipo: Tipo) extends PiedraEvolutiva
 
 trait CondicionEvolucion {
   def intercambiar(pokemon: Pokemon) = pokemon

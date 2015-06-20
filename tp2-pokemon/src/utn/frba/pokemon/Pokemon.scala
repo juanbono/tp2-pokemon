@@ -1,5 +1,5 @@
 package utn.frba.pokemon
-
+import utn.frba.pokemon._
 //sealed dice que ayuda al motor de inferencia a la hora del  pattern matching y los pongo como case objects para lo mismo 
 // y porque no toman parametros ni nada.
 sealed abstract class Genero
@@ -17,10 +17,8 @@ case class Pokemon(
   val velocidad: Int = 1,
   val especie: Especie,
   val estado: Option[Estado] = None,
-  val ataques: List[Ataque] = List(new AtaqueDefault)) {
-  // pasar pokemon al package, ver las dependencias entre los atributos del pokemon ,cuales son calculables y cuales no. 
-  // dado un pokemon de una especie determinada y con una cantidad de experiencia determinada se deberia poder calcular su fuerza,
-  // velocidad, etc (sin tener en cuenta las actividades que podria haber realizado) 
+  val ataques: List[Ataque]) {
+  
   def tipoPrincipal: Tipo = especie.tipoPrincipal
   def tipoSecundario: Option[Tipo] = especie.tipoSecundario
   def esMacho: Boolean = genero == Masculino

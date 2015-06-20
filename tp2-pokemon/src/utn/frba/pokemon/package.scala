@@ -5,10 +5,6 @@ import utn.frba.pokemon._
 package object simulador {
 
   //**************************** Tipos *******************************
-  case class Tipo(val lst: List[Tipo]) {
-    def mataA(tipo: Tipo): Boolean = lst.contains(tipo)
-  }
-
   lazy val fuego: Tipo = Tipo(List(fuego))
   lazy val agua: Tipo = Tipo(List(fuego, tierra, roca))
   lazy val planta: Tipo = Tipo(List(agua, tierra, roca))
@@ -27,21 +23,7 @@ package object simulador {
 
   //**************************** Ataques *******************************
 
-  //**************************** Especie *******************************
-  case class Especie(
-    val id: Int = 0, // MissingNo.
-    val resistenciaEvolutiva: Int = 10,
-    val pesoMaximo: Double = 0,
-    val energiaMaximaInc: Int = 0,
-    val pesoInc: Double = 0,
-    val fuerzaInc: Int = 0,
-    val velocidadInc: Int = 0,
-    val tipoPrincipal: Tipo,
-    val tipoSecundario: Option[Tipo] = None,
-    val evolucion: Option[Especie] = None,
-    val condicionEvolucion: Option[CondicionEvolucion] = None)
 
-  //**************************** Pokemon *******************************
 
   //**************************** Actividades ***************************
 
@@ -61,12 +43,8 @@ package object simulador {
     pokemon
   }
   val fingirIntercambio: Actividad = { p =>
-    val nuevoPokemon = pokemon.especie.condicionEvolucion.fold(pokemon)(_.intercambiar(pokemon))
-    // hay qe pasar pokemon y especie al package parece xD (nota mental: fijarme si es realmente necesario) 
-    if (nuevoPokemon.esHembra)
-      nuevoPokemon.bajarPeso(10)
-    else
-      nuevoPokemon.subirPeso(1)
+    val nuevoPokemon = p.especie.condicionEvolucion.fold(p)(_.intercambiar(p))
+    if (nuevoPokemon.esHembra) nuevoPokemon.cambiarPeso(-10) else nuevoPokemon.cambiarPeso(1)
   }
   //**************************** Simulador *******************************
 }

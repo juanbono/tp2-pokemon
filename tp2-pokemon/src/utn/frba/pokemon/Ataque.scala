@@ -1,7 +1,7 @@
 package utn.frba.pokemon
 
 //Los Ataques son un tipo de Actividad
-case class Ataque(val tipo : Tipo = Normal, val puntosDeAtaque : Int = 1, val maximoInicialPA : Int = 10, val efecto: Actividad)  {
+case class Ataque(val tipo: Tipo, val puntosDeAtaque: Int, val maximoInicialPA: Int, val efecto: Actividad)  {
   
   def aplicar(pokemon : Pokemon) : Estado = {
     var experiencia = 0
@@ -28,14 +28,15 @@ case class Ataque(val tipo : Tipo = Normal, val puntosDeAtaque : Int = 1, val ma
     case Ataque(t,pa,m,e) => Ataque(t,pa-1,m,e)
   } 
    
-  def recuperarPA(q:Int) = copy(puntosDeAtaque = this.puntosDeAtaque + q)
+  def recuperarPA(q:
+      Int) = copy(puntosDeAtaque = this.puntosDeAtaque + q)
   
   def recuperarTodosLosPA = recuperarPA(maximoInicialPA)
 }
 
 /* Aca se definen los distintos tipos de ataques disponibles.
  * El efecto implica tanto el comportamiendo del ataque como el concepto de efecto colateral definido en el tp.
- */
+ 
 class AtaqueDefault(tipo : Tipo = Normal, puntosDeAtaque : Int = 1, maximoInicialPA : Int= 5, 
      override val efecto : (Pokemon => Estado) = (p: Pokemon) => EstadoNormal(p.subirEnergia(1))) extends Ataque
 
@@ -56,3 +57,5 @@ class ChorroDeAguaDelRiachueloAtaque (override val tipo : Tipo = Agua, override 
 
 class ExplosionAtaque (override val tipo : Tipo = Fuego,  override val puntosDeAtaque : Int  = 1,  override val maximoInicialPA : Int  = 20,
      override val efecto : (Pokemon => Estado) = (p: Pokemon) => EstadoKO(p, "KO por explosion")) extends Ataque 
+
+*/

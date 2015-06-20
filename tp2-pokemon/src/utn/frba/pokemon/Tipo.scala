@@ -1,4 +1,7 @@
 package utn.frba.pokemon
+case class Tipo(val lst: List[Tipo]) {
+    def mataA(tipo: Tipo): Boolean = lst.contains(tipo)
+  }
 /*
 // Tipos que puede tener una especie de pokemon.
 trait Tipo {

@@ -1,5 +1,6 @@
 package utn.frba.pokemon
 import utn.frba.pokemon._
+
 case class Especie (
     val id: Int = 0, // MissingNo.
     val resistenciaEvolutiva: Int = 10,
@@ -16,7 +17,7 @@ case class Especie (
 
 // Aca se definen todas las especies conocidas.
  
-
+/*
 object Charmander extends Especie (id = 4, resistenciaEvolutiva = 350, tipoPrincipal = Fuego, evolucion = Some(Charmeleon), condicionEvolucion = Some(new SubirNivelEvolucion(5)))
 object Charmeleon extends Especie (id = 5, tipoPrincipal = Fuego, evolucion = Some(Charizard), condicionEvolucion = Some(new SubirNivelEvolucion(36)))
 object Charizard extends Especie (id = 6, tipoPrincipal = Fuego)
@@ -32,3 +33,4 @@ object Poliwrath extends Especie (id = 62, tipoPrincipal = Agua, tipoSecundario 
 object Squirtle extends Especie (id = 7, tipoPrincipal = Agua, evolucion = Some(Wartortle), condicionEvolucion = None)
 object Wartortle extends Especie (id = 8, tipoPrincipal = Agua, evolucion = Some(Blastoise), condicionEvolucion = None)
 object Blastoise extends Especie (id = 9, tipoPrincipal = Agua, evolucion = None, condicionEvolucion = None)
+*/
