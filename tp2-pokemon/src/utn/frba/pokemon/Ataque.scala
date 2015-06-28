@@ -1,27 +1,26 @@
 package utn.frba.pokemon
 
-//Los Ataques son un tipo de Actividad
 case class Ataque(val tipo: Tipo, val puntosDeAtaque: Int, val maximoInicialPA: Int, val efecto: Pokemon => Pokemon)  {
   
-  def aplicar(pokemon : Pokemon) : Estado = {
+  def aplicar(pokemon : Pokemon) : Pokemon = {
     var experiencia = 0
     
     pokemon match {
-      case _ if this.puntosDeAtaque == 0 => return EstadoActividadNoEjecutada(pokemon, "Pokemon no puede realizar ataque: No tiene suficientes puntos de ataque para atacar")
-      case _ if !pokemon.ataques.contains(this) => return EstadoActividadNoEjecutada(pokemon, "Pokemon no puede realizar ataque: No conoce el ataque %s".format(this.getClass.toString()))
+      case _ if this.puntosDeAtaque == 0 => throw NoPAException("Pokemon no puede realizar ataque: No tiene suficientes puntos de ataque para atacar")
+      case _ if !pokemon.ataques.contains(this) => throw UnknownAttackException("Pokemon no puede realizar ataque: No conoce el ataque %s".format(this.getClass.toString()))
       case _ if pokemon.algunTipoEs(dragon) => experiencia = 80
       case _ if pokemon.esTipoPrincipal(tipo) => experiencia = 50
       case _ if pokemon.esTipoSecundario(tipo) && pokemon.esHembra => experiencia = 40
       case _ if pokemon.esTipoSecundario(tipo) && pokemon.esMacho => experiencia = 20
     }
 
-    // aca manejo lo de bajarle 1 al ataque.
+    // aca manejo lo de bajarle 1 PA al ataque 
    
     val a1 = pokemon.ataques.find((a: Ataque) => a == this).get.bajarPA
     val listaSinAtaqueActual = pokemon.ataques.filter { a: Ataque => a != this }
-    val pok = pokemon.copy(ataques = listaSinAtaqueActual :+ a1)
+    val p = pokemon.copy(ataques = listaSinAtaqueActual :+ a1)
     
-    efecto(pok.subirExperiencia(experiencia).subirNivel)
+    efecto(p.subirExperiencia(experiencia).subirNivel)
   }
   
    def bajarPA: Ataque = this match {
