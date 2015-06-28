@@ -1,5 +1,6 @@
 package utn.frba.pokemon
 import utn.frba.pokemon._
+
 //sealed dice que ayuda al motor de inferencia a la hora del  pattern matching y los pongo como case objects para lo mismo 
 // y porque no toman parametros ni nada.
 sealed abstract class Genero
@@ -7,14 +8,12 @@ case object Masculino extends Genero
 case object Femenino extends Genero
 
 case class Pokemon(
-  val nivel: Int = 1,
   val experiencia: Int = 0,
   val genero: Genero = Masculino,
   val energia: Int = 0,
-  val energiaMaxima: Int = 100,
-  val peso: Double = 0,
-  val fuerza: Int = 1,
-  val velocidad: Int = 1,
+  val pesoExtra: Double = 0,
+  val fuerzaExtra: Int = 0,
+  val velocidadExtra: Int = 0,
   val especie: Especie,
   val estado: Option[Estado] = None,
   val ataques: List[Ataque]) {
@@ -25,21 +24,94 @@ case class Pokemon(
   def esHembra: Boolean = genero == Femenino
   def esTipoPrincipal(t: Tipo): Boolean = t == tipoPrincipal
   def esTipoSecundario(t: Tipo): Boolean = t == tipoSecundario.getOrElse(false)
-  def algunTipoEs(t: Tipo): Boolean = (tipoPrincipal == t) || (tipoSecundario.getOrElse(false) == t)
+  def algunTipoEs(t: Tipo): Boolean = esTipoPrincipal(t) || esTipoSecundario(t)
 
   def cambiarEstado(e: Option[Estado]): Pokemon = e match {
     case None    => copy(estado = None)
     case Some(s) => copy(estado = Some(s))
   }
-  def cambiarVelocidad(dif: Int): Pokemon = copy(velocidad = this.velocidad + dif)
+  
+  def subirExperiencia(dif: Int): Pokemon = {
+    if (experiencia + dif < 0) {
+      throw InvalidPokemonException("Pokemon no puede disminuir la experiencia")
+    }
+    
+    val nuevoPokemon = copy(experiencia = experiencia + dif)
+    
+    especie.condicionEvolucion.fold(nuevoPokemon)(_.subirNivel(nuevoPokemon))
+  }
+  
+  def velocidad = especie.velocidadInc * this.nivel + velocidadExtra
+  
+  def cambiarVelocidad(dif: Int): Pokemon = {
+    if (velocidad + dif < 1) {
+      throw InvalidPokemonException("Pokemon no puede disminuir la velocidad")
+    }
+    
+    val cambioVelocidad = if (velocidad + dif > 100) {
+      100
+    } else {
+      this.velocidadExtra + dif
+    }
+    
+    copy(velocidadExtra = cambioVelocidad)
+  }
 
-  def cambiarEnergia(dif: Int): Pokemon = copy(energia = this.energia + dif)
-
-  def subirExperiencia(dif: Int): Pokemon = copy(experiencia = experiencia + dif).subirNivel
-  def cambiarPeso(dif: Double): Pokemon = copy(peso = peso + dif)
-
-  def cambiarFuerza(dif: Int): Pokemon = copy(fuerza = this.fuerza + dif)
-
+  def energiaMaxima = especie.energiaMaximaInc * this.nivel
+  
+  def cambiarEnergia(dif: Int): Pokemon = {
+    if (energia + dif < 0) {
+      throw InvalidPokemonException("Pokemon no puede disminuir la energia")
+    }
+    
+    val cambioEnergia = if (energia + dif > energiaMaxima) {
+      energiaMaxima
+    } else {
+      this.energia + dif
+    }
+    
+    copy(energia = cambioEnergia)
+  }
+  
+  def peso: Double = especie.pesoInc * this.nivel + pesoExtra
+  
+  def cambiarPeso(dif: Double): Pokemon = {
+    if (peso + dif > especie.pesoMaximo) {
+      throw InvalidPokemonException("Pokemon no puede aumentar el peso")
+    } else if (peso + dif < 0) {
+      throw InvalidPokemonException("Pokemon no puede disminuir el peso")
+    }
+    
+    copy(pesoExtra = this.pesoExtra + dif)
+  }
+  
+  def fuerza = especie.fuerzaInc * this.nivel + fuerzaExtra
+  
+  def cambiarFuerza(dif: Int): Pokemon = {
+    if (fuerza + dif < 1) {
+      throw InvalidPokemonException("Pokemon no puede disminuir la fuerza")
+    }
+    
+    val cambioFuerza = if (fuerza + dif > 100) {
+      100
+    } else {
+      this.fuerzaExtra + dif
+    }
+    
+    copy(fuerzaExtra = cambioFuerza)
+  }
+  
+  // Debe haber una forma de hacerlo mas eficiente.
+  def nivel: Int = {
+    for (i <- 1 to 100) {
+      if (this.experienciaNivel(i + 1) > experiencia) {
+        return i
+      }
+    }
+    
+    return 100
+  }  
+  
   def experienciaNivel(nivel: Int): Int = {
     nivel match {
       case 1 => 0
@@ -47,29 +119,9 @@ case class Pokemon(
     }
   }
 
-  def subirNivel: Pokemon = {
-    if (experiencia >= experienciaNivel(nivel + 1))
-      especie.condicionEvolucion.fold(copy(nivel = nivel + 1))(_.subirNivel(copy(nivel = nivel + 1)))
-    else
-      this
-  }
+  def evolucionar: Pokemon = especie.evolucion.fold(this)(nuevaEspecie => copy(especie = nuevaEspecie))
 
-  def evolucionar: Pokemon = {
-    especie.evolucion.fold(this)(nuevaEspecie => copy(especie = nuevaEspecie))
-  }
-
-  def getPokemonValido: Option[Pokemon] = {
-    Some(this)
-  }
-
-  //Validaciones
-  def esNivelValido: Boolean = (nivel >= 1 && nivel <= 100)
-  def esFuerzaValida: Boolean = (fuerza >= 1 && fuerza <= 100)
-  def esGeneroValido: Boolean = (genero == Masculino || genero == Femenino)
-  def esVelocidadValida: Boolean = (velocidad >= 1 && velocidad <= 100)
-  def esPesoValido: Boolean = (peso >= 0 && peso <= 100)
-
-  def esPokemonValido: Boolean = esNivelValido && esFuerzaValida && esGeneroValido && esVelocidadValida && esPesoValido
+  def getPokemonValido: Option[Pokemon] = Some(this)
 }
 
 

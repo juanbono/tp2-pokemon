@@ -20,7 +20,7 @@ case class Ataque(val tipo: Tipo, val puntosDeAtaque: Int, val maximoInicialPA: 
     val listaSinAtaqueActual = pokemon.ataques.filter { a: Ataque => a != this }
     val p = pokemon.copy(ataques = listaSinAtaqueActual :+ a1)
     
-    efecto(p.subirExperiencia(experiencia).subirNivel)
+    efecto(p.subirExperiencia(experiencia))
   }
   
    def bajarPA: Ataque = this match {

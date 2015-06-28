@@ -55,7 +55,7 @@ package object pokemon {
   val levantarPesas: Int => Actividad = (kg: Int) => (p: Pokemon) => p match {
     case _ if p.algunTipoEs(fantasma) => throw InvalidPokemonTypeException("Los pokemon de tipo fantasma no pueden levantar pesas.")
     case _ if kg / p.fuerza > 10      => p.cambiarEstado(Some(Paralizado))
-    case _ if p.algunTipoEs(Pelea)    => p.subirExperiencia(2 * kg)
+    case _ if p.algunTipoEs(pelea)    => p.subirExperiencia(2 * kg)
     case _                            => p.subirExperiencia(kg)
   }
   
