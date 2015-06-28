@@ -1,4 +1,5 @@
 package utn.frba.pokemon
+
 /*
 /*
  * Una Activdad va de un pokemon y devuelve un Estado de resultado, conteniendo el pokemon modificado si corresponde.

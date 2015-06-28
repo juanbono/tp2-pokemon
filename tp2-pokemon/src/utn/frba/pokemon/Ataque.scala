@@ -1,7 +1,7 @@
 package utn.frba.pokemon
 
 //Los Ataques son un tipo de Actividad
-case class Ataque(val tipo: Tipo, val puntosDeAtaque: Int, val maximoInicialPA: Int, val efecto: Actividad)  {
+case class Ataque(val tipo: Tipo, val puntosDeAtaque: Int, val maximoInicialPA: Int, val efecto: Pokemon => Pokemon)  {
   
   def aplicar(pokemon : Pokemon) : Estado = {
     var experiencia = 0
@@ -9,7 +9,7 @@ case class Ataque(val tipo: Tipo, val puntosDeAtaque: Int, val maximoInicialPA: 
     pokemon match {
       case _ if this.puntosDeAtaque == 0 => return EstadoActividadNoEjecutada(pokemon, "Pokemon no puede realizar ataque: No tiene suficientes puntos de ataque para atacar")
       case _ if !pokemon.ataques.contains(this) => return EstadoActividadNoEjecutada(pokemon, "Pokemon no puede realizar ataque: No conoce el ataque %s".format(this.getClass.toString()))
-      case _ if tipo == Dragon => experiencia = 80
+      case _ if pokemon.algunTipoEs(dragon) => experiencia = 80
       case _ if pokemon.esTipoPrincipal(tipo) => experiencia = 50
       case _ if pokemon.esTipoSecundario(tipo) && pokemon.esHembra => experiencia = 40
       case _ if pokemon.esTipoSecundario(tipo) && pokemon.esMacho => experiencia = 20
@@ -21,7 +21,7 @@ case class Ataque(val tipo: Tipo, val puntosDeAtaque: Int, val maximoInicialPA: 
     val listaSinAtaqueActual = pokemon.ataques.filter { a: Ataque => a != this }
     val pok = pokemon.copy(ataques = listaSinAtaqueActual :+ a1)
     
-    efecto(pok.cambiarExperiencia(experiencia).subirNivel)
+    efecto(pok.subirExperiencia(experiencia).subirNivel)
   }
   
    def bajarPA: Ataque = this match {
@@ -33,6 +33,11 @@ case class Ataque(val tipo: Tipo, val puntosDeAtaque: Int, val maximoInicialPA: 
   
   def recuperarTodosLosPA = recuperarPA(maximoInicialPA)
 }
+
+
+
+
+
 
 /* Aca se definen los distintos tipos de ataques disponibles.
  * El efecto implica tanto el comportamiendo del ataque como el concepto de efecto colateral definido en el tp.

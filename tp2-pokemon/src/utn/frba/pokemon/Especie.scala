@@ -1,4 +1,5 @@
 package utn.frba.pokemon
+
 import utn.frba.pokemon._
 
 case class Especie (
@@ -13,7 +14,9 @@ case class Especie (
     val tipoSecundario: Option[Tipo] = None,
     val evolucion: Option[Especie] = None,
     val condicionEvolucion: Option[CondicionEvolucion] = None
-)
+) {
+  def debilContra(t:Tipo): Boolean = t.mataA(tipoPrincipal) || t.mataA(tipoSecundario.getOrElse(tipoPrincipal))
+}
 
 // Aca se definen todas las especies conocidas.
  
