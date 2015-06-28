@@ -19,8 +19,8 @@ class GimnasioTest {
   val mordida = new MordidaAtaque
   val chorroDeAguaDelRiachuelo = new ChorroDeAguaDelRiachueloAtaque
 
-  val unSquartle = Pokemon(nivel = 1, experiencia = 0, especie = Squirtle, fuerza = 2, ataques = List(mordida, chorroDeAguaDelRiachuelo))
-  val unCharizard = Pokemon(nivel = 1, experiencia = 0, especie = Charizard, fuerza = 6, ataques = List(enfocarse, reposar, explosion))
+  val unSquartle = Pokemon.make(energia = 9, energiaMaximaExtra = 150, especie = Squirtle, fuerzaExtra = 2, ataques = List(mordida, chorroDeAguaDelRiachuelo))
+  val unCharizard = Pokemon.make(experiencia = 0, energiaMaximaExtra = 150, especie = Charizard, fuerzaExtra = 6, ataques = List(enfocarse, reposar, explosion))
 
   @Test
   def `PokemonUsaPocion` = {
@@ -109,18 +109,18 @@ class GimnasioTest {
   //Tests con rutinas
   @Test
   def `Rutina que ejecuta normalmente` = {
-    val pokemon = Pokemon(nivel = 1, experiencia = 0, especie = Charizard, fuerza = 10)
+    val pokemon = Pokemon.make(experiencia = 0, energia = 0, energiaMaximaExtra = 100, especie = Charizard, fuerzaExtra = 10)
     val rutina = new Rutina(nombre = "Rutina 1", actividades = UsarPocion, UsarPocion, ComerHierro)
     val resultado = rutina.ejecutar(pokemon)
 
     assertEquals(EstadoNormal(resultado.pokemon), resultado.estado)
     assertEquals(100, resultado.pokemon.energia)
-    assertEquals(15, resultado.pokemon.fuerza)
+    assertEquals(Charizard.fuerzaInc * pokemon.nivel + 15, resultado.pokemon.fuerza)
   }
 
   @Test
   def `Rutina que no puede ejecutar` = {
-    val pokemon = Pokemon(nivel = 1, experiencia = 0, especie = Charizard, fuerza = 10)
+    val pokemon = Pokemon.make(experiencia = 0, especie = Charizard, fuerzaExtra = 10)
     val rutina = new Rutina(nombre = "Rutina 1", actividades = RealizarUnAtaque(mordida))
     val resultado = rutina.ejecutar(pokemon)
 
@@ -130,10 +130,9 @@ class GimnasioTest {
   //Tests Analizador de rutinas con criterios
   @Test
   def `Obtener mejor rutina que obtenga nivel mas alto para un pokemon` = {
+    
     val mayorNivelCriterio = (r1: ResultadoRutina, r2: ResultadoRutina) => r1.pokemon.nivel > r2.pokemon.nivel
-
-    //val menorPesolCriterio = (p1 : ResultadoRutina, p2 : ResultadoRutina) => p1.peso > p2.peso
-    val pokemon = Pokemon(nivel = 1, experiencia = 349, especie = Charizard, fuerza = 10, ataques = List(mordida))
+    val pokemon = Pokemon.make(experiencia = 349, especie = Charizard, fuerzaExtra = 10, ataques = List(mordida))
     val rutina1 = new Rutina(nombre = "Rutina 1", actividades = RealizarUnAtaque(enfocarse)) //no tiene el ataque
     val rutina2 = new Rutina(nombre = "Rutina 2", actividades = RealizarUnAtaque(mordida)) //tiene el ataque, le sube experiencia
     val rutina3 = new Rutina(nombre = "Rutina 3", actividades = RealizarUnAtaque(explosion)) //no tiene el ataque
@@ -146,7 +145,7 @@ class GimnasioTest {
   def `Obtener mejor rutina que obtenga el menor peso para un pokemon` = {
 
     val menorPesoCriterio = (r1: ResultadoRutina, r2: ResultadoRutina) => r1.pokemon.peso < r2.pokemon.peso
-    val pokemon = Pokemon(genero = Femenino, peso = 100, especie = Charizard)
+    val pokemon = Pokemon.make(genero = Femenino, pesoExtra = 100, especie = Charizard)
     val rutina1 = new Rutina(nombre = "Rutina 1", actividades = FingirIntercambio)
     val rutina2 = new Rutina(nombre = "Rutina 2", actividades = FingirIntercambio, FingirIntercambio)
     val rutina3 = new Rutina(nombre = "Rutina 3", actividades = FingirIntercambio, FingirIntercambio, FingirIntercambio)
@@ -159,7 +158,7 @@ class GimnasioTest {
   def `Obtener mejor rutina que obtenga la mayor energia para un pokemon` = {
 
     val mayorEnergiaCriterio = (r1: ResultadoRutina, r2: ResultadoRutina) => r1.pokemon.energia > r2.pokemon.energia
-    val pokemon = Pokemon(genero = Femenino, energia = 0, especie = Charizard)
+    val pokemon = Pokemon.make(genero = Femenino, energia = 0, energiaMaximaExtra = 100, pesoExtra = 10, especie = Charizard)
     val rutina1 = new Rutina(nombre = "Rutina 1", actividades = FingirIntercambio, UsarPocion)
     val rutina2 = new Rutina(nombre = "Rutina 2", actividades = FingirIntercambio, FingirIntercambio)
     val rutina3 = new Rutina(nombre = "Rutina 3", actividades = FingirIntercambio, FingirIntercambio, FingirIntercambio)
@@ -178,6 +177,20 @@ class GimnasioTest {
     val analizador = new AnalizadorRutinas(criterio, rutina1, rutina2, rutina3)
 
     assertEquals("Rutina 2", analizador.mejorRutina(unSquartle))
+  }
+  
+  @Test
+  def `Ninguna rutina puede ser realizada por el pokemon ` = {
+    val ataqueSinPuntos = new AtaqueDefault(puntosDeAtaque = 0)
+    val pokemon = Pokemon.make(genero = Femenino, energia = 0, especie = Charizard, ataques = List(ataqueSinPuntos))
+     
+    val rutina1 = new Rutina("Rutina 1", RealizarUnAtaque(ataqueSinPuntos))
+    val rutina2 = new Rutina("Rutina 2", Nadar(10))
+
+    val criterio = (r1: ResultadoRutina, r2: ResultadoRutina) => r1.pokemon.velocidad > r2.pokemon.velocidad
+    val analizador = new AnalizadorRutinas(criterio, rutina1, rutina2)
+
+    assertEquals("Ninguna rutina", analizador.mejorRutina(unSquartle))
   }
 
 }

@@ -7,25 +7,10 @@ trait Actividad {
    def aplicar(pokemon : Pokemon) : Estado
    
    def ejecutar(pokemon : Pokemon) : Estado = {
-     validarActividad(pokemon, aplicar(pokemon))
+     aplicar(pokemon)
    }
    
-   def validarActividad(pokemonOriginal : Pokemon, estado : Estado) : Estado = {
-     var mensaje : List[String] = List()
-     val pokemon = estado.pokemon
-     
-     estado.pokemon match {
-       case _ if pokemon.esPokemonValido       => return estado
-       case _ if !pokemon.esNivelValido        => mensaje = "Nivel debe ser un numero de 1 a 100" :: mensaje 
-       case _ if !pokemon.esGeneroValido       => mensaje = "Genero debe ser Masculino o Femenino" :: mensaje  
-       case _ if !pokemon.esFuerzaValida       => mensaje = "Fuerza debe ser un numero de 1 a 100" :: mensaje 
-       case _ if !pokemon.esVelocidadValida    => mensaje = "velocidad debe ser un numero de 1 a 100" :: mensaje   
-       case _ if !pokemon.esPesoValido         => mensaje = "peso debe ser un numero de 1 a 100" :: mensaje
-     }
-
-       EstadoActividadNoEjecutada(pokemonOriginal, ("La actividad produce estado invalido" :: mensaje).toString())
-   }
-}
+  }
 
 case class RealizarUnAtaque(ataque: Ataque) extends Actividad {
   def aplicar(pokemon : Pokemon) : Estado = {
@@ -44,7 +29,7 @@ case class LevantarPesas(kilos: Int) extends Actividad {
       case _ => experiencia = kilos
     }
     
-    EstadoNormal(pokemon.subirExperiencia(experiencia))
+    EstadoNormal(pokemon.cambiarExperiencia(experiencia))
   }
 }
 
@@ -53,7 +38,7 @@ case class Nadar(minutos: Int) extends Actividad {
     
     pokemon match {
       case _ if (Agua.mataA(pokemon.tipoPrincipal) || Agua.mataA(pokemon.tipoSecundario.getOrElse(Agua))) =>  EstadoKO(pokemon, "El pokemon pierde contra el agua")
-      case _ => EstadoNormal(pokemon.subirExperiencia(200).bajarEnergia(minutos).subirVelocidad(if (pokemon.tipoPrincipal == Agua) minutos % 60 else 0))
+      case _ => EstadoNormal(pokemon.cambiarExperiencia(200).cambiarEnergia(minutos).cambiarVelocidad(if (pokemon.tipoPrincipal == Agua) minutos % 60 else 0))
     }
     
   }
@@ -73,13 +58,13 @@ case class UsarPiedra(piedra: PiedraEvolutiva) extends Actividad {
   def aplicar(pokemon : Pokemon) : Estado = { 
     pokemon match {
        case _ if piedra.tipo.mataA(pokemon.tipoPrincipal) || piedra.tipo.mataA(pokemon.tipoSecundario.getOrElse(null)) =>  EstadoEnvenenado(pokemon)
-       case _ => EstadoNormal(pokemon.especie.condicionEvolucion.fold(pokemon)(_.usarPiedra(pokemon, piedra)))
+       case _ => EstadoNormal(pokemon.especie.condicionEvolucion.fold(pokemon)(_.evolucionar(pokemon, piedra)))
     }
   }
 }
 
 case object UsarPocion extends Actividad {
-  def aplicar(pokemon : Pokemon) : Estado = EstadoNormal(pokemon.subirEnergia(50))
+  def aplicar(pokemon : Pokemon) : Estado = EstadoNormal(pokemon.cambiarEnergia(50))
 }
 
 case object UsarAntidoto extends Actividad {
@@ -91,11 +76,11 @@ case object UsarEther extends Actividad {
 }
 
 case object ComerHierro extends Actividad {
-  def aplicar(pokemon : Pokemon) : Estado = EstadoNormal(pokemon.subirFuerza(5))
+  def aplicar(pokemon : Pokemon) : Estado = EstadoNormal(pokemon.cambiarFuerza(5))
 }
 
 case object ComerCalcio extends Actividad {
-   def aplicar(pokemon : Pokemon) : Estado = EstadoNormal(pokemon.subirVelocidad(5))
+   def aplicar(pokemon : Pokemon) : Estado = EstadoNormal(pokemon.cambiarVelocidad(5))
 }
 
 case object ComerZinc extends Actividad {
@@ -115,11 +100,11 @@ case object Descansar extends Actividad {
 
 case object FingirIntercambio extends Actividad {
   def aplicar(pokemon : Pokemon) : Estado = {
-    val nuevoPokemon = pokemon.especie.condicionEvolucion.fold(pokemon)(_.intercambiar(pokemon))
+    val nuevoPokemon = pokemon.especie.condicionEvolucion.fold(pokemon)(_.evolucionar(pokemon))
     
     if (nuevoPokemon.esHembra)
-      EstadoNormal(nuevoPokemon.bajarPeso(10))
+      EstadoNormal(nuevoPokemon.cambiarPeso(-10))
     else
-      EstadoNormal(nuevoPokemon.subirPeso(1))
+      EstadoNormal(nuevoPokemon.cambiarPeso(1))
   }
 }

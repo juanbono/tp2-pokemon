@@ -5,15 +5,14 @@ case class PiedraEvolutivaComun(val tipo: Tipo) extends PiedraEvolutiva
 case class PiedraLunar(val tipo: Tipo = Normal) extends PiedraEvolutiva
 
 trait CondicionEvolucion {
-  def intercambiar(pokemon: Pokemon) = pokemon
-  def subirNivel(pokemon: Pokemon) = pokemon
-  def usarPiedra(pokemon: Pokemon, piedra : PiedraEvolutiva) = pokemon 
+  def evolucionar(pokemon: Pokemon) = pokemon
+  def evolucionar(pokemon: Pokemon, piedra : PiedraEvolutiva) = pokemon
 }
 
 case class SubirNivelEvolucion(val nivel : Int) extends CondicionEvolucion {
-  override def subirNivel(pokemon: Pokemon) = {
+  override def evolucionar(pokemon: Pokemon) = {
     if (pokemon.nivel >= nivel) {
-      pokemon.evolucionar;
+      pokemon.evolucionar
     } else {
       pokemon
     }
@@ -21,11 +20,11 @@ case class SubirNivelEvolucion(val nivel : Int) extends CondicionEvolucion {
 }
 
 case class IntercambiarEvolucion() extends CondicionEvolucion {
-  override def intercambiar(pokemon: Pokemon) = pokemon.evolucionar
+  override def evolucionar(pokemon: Pokemon) = pokemon.evolucionar
 }
 
 case class UsarPiedraEvolucion() extends CondicionEvolucion {
-  override def usarPiedra(pokemon: Pokemon, piedra: PiedraEvolutiva) = {
+  override def evolucionar(pokemon: Pokemon, piedra: PiedraEvolutiva) = {
     if (pokemon.especie.tipoPrincipal.equals(piedra.tipo)) {
       pokemon.evolucionar
     } else {
@@ -35,7 +34,7 @@ case class UsarPiedraEvolucion() extends CondicionEvolucion {
 }
 
 case class UsarPiedraLunarEvolucion() extends CondicionEvolucion {
-  override def usarPiedra(pokemon: Pokemon, piedra: PiedraEvolutiva) = {
+  override def evolucionar(pokemon: Pokemon, piedra: PiedraEvolutiva) = {
     piedra match {
       case PiedraLunar(_) => pokemon.evolucionar
       case _ => pokemon

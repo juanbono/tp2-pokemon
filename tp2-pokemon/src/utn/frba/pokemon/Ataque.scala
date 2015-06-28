@@ -21,7 +21,7 @@ case class Ataque(val tipo : Tipo = Normal, val puntosDeAtaque : Int = 1, val ma
     val listaSinAtaqueActual = pokemon.ataques.filter { a: Ataque => a != this }
     val pok = pokemon.copy(ataques = listaSinAtaqueActual :+ a1)
     
-    efecto(pok.subirExperiencia(experiencia).subirNivel)
+    efecto(pok.cambiarExperiencia(experiencia))
   }
   
    def bajarPA: Ataque = this match {
@@ -32,23 +32,23 @@ case class Ataque(val tipo : Tipo = Normal, val puntosDeAtaque : Int = 1, val ma
 /* Aca se definen los distintos tipos de ataques disponibles.
  * El efecto implica tanto el comportamiendo del ataque como el concepto de efecto colateral definido en el tp.
  */
-class AtaqueDefault(tipo : Tipo = Normal, puntosDeAtaque : Int = 1, maximoInicialPA : Int= 5, 
-     override val efecto : (Pokemon => Estado) = (p: Pokemon) => EstadoNormal(p.subirEnergia(1))) extends Ataque
+class AtaqueDefault(override val tipo : Tipo = Normal, override val puntosDeAtaque : Int = 1, override val maximoInicialPA : Int= 5, 
+     override val efecto : (Pokemon => Estado) = (p: Pokemon) => EstadoNormal(p.cambiarEnergia(1))) extends Ataque
 
 class MordidaAtaque(override val tipo : Tipo = Fuego, override val puntosDeAtaque : Int = 1, override val  maximoInicialPA : Int= 30,
-      override val efecto : (Pokemon => Estado) = (p: Pokemon) => EstadoNormal(p.subirFuerza(1))) extends Ataque
+      override val efecto : (Pokemon => Estado) = (p: Pokemon) => EstadoNormal(p.cambiarFuerza(1))) extends Ataque
 
 class ReporsarAtaque (override val tipo : Tipo = Fuego, override val puntosDeAtaque : Int = 1, override val maximoInicialPA : Int = 2,
       override val efecto : (Pokemon => Estado) = (p: Pokemon) => EstadoDormido(p.copy(energia = p.energiaMaxima))) extends Ataque
 
 class EnfocarseAtaque (override val tipo : Tipo = Fuego,  override val puntosDeAtaque  : Int= 1,  override val maximoInicialPA : Int  = 2,
-     override val efecto : (Pokemon => Estado) = (p: Pokemon) => EstadoNormal(p.subirVelocidad(1))) extends Ataque 
+     override val efecto : (Pokemon => Estado) = (p: Pokemon) => EstadoNormal(p.cambiarVelocidad(1))) extends Ataque 
 
 class EndurecerseAtaque (override val tipo : Tipo = Fuego,  override val puntosDeAtaque : Int  = 1, override val  maximoInicialPA : Int = 2,
-     override val efecto : (Pokemon => Estado) = (p: Pokemon) => EstadoParalizado(p.subirEnergia(5))) extends Ataque
+     override val efecto : (Pokemon => Estado) = (p: Pokemon) => EstadoParalizado(p.cambiarEnergia(5))) extends Ataque
     
 class ChorroDeAguaDelRiachueloAtaque (override val tipo : Tipo = Agua, override val  puntosDeAtaque : Int = 1, override val  maximoInicialPA : Int = 10,
-     override val efecto : (Pokemon => Estado) = (p: Pokemon) => EstadoEnvenenado(p.subirFuerza(1))) extends Ataque 
+     override val efecto : (Pokemon => Estado) = (p: Pokemon) => EstadoEnvenenado(p.cambiarFuerza(1))) extends Ataque 
 
 class ExplosionAtaque (override val tipo : Tipo = Fuego,  override val puntosDeAtaque : Int  = 1,  override val maximoInicialPA : Int  = 20,
      override val efecto : (Pokemon => Estado) = (p: Pokemon) => EstadoKO(p, "KO por explosion")) extends Ataque 

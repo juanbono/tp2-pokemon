@@ -6,18 +6,77 @@ sealed abstract class Genero
 case object Masculino extends Genero
 case object Femenino extends Genero
 
-case class Pokemon(
-  val nivel: Int = 1,
-  val experiencia: Int = 0,
-  val genero: Genero = Masculino,
-  val energia: Int = 0,
-  val energiaMaxima: Int = 100,
-  val peso: Double = 0,
-  val fuerza: Int = 1,
-  val velocidad: Int = 1,
-  val especie: Especie,
-  val ataques: List[Ataque] = List(new AtaqueDefault)) {
+object Pokemon {
+  // Builder de Pokemon, instancia un pokemon y lo evoluciona de acuerdo a su experiencia.
+  def make(
+          experiencia: Long = 0,
+          especie: Especie,
+          ataques: List[Ataque] = List(new AtaqueDefault),
+          genero: Genero = Masculino,
+          energia: Int = 0,
+          energiaMaximaExtra: Int = 0,
+          pesoExtra: Double = 0 ,
+          fuerzaExtra: Int = 0,
+          deltaVelocidad: Int = 0
+        ) : Pokemon = {
 
+     val pokemon = Pokemon(experiencia, especie, ataques, genero, energia, energiaMaximaExtra, pesoExtra, fuerzaExtra, deltaVelocidad, List())
+     pokemon.actualizarEvoluciones()
+    }
+  }
+  
+case class Pokemon private (
+  val experiencia: Long,
+  val especie: Especie,
+  val ataques: List[Ataque],
+  val genero: Genero,
+  val energia: Int,
+   energiaMaximaExtra: Int,
+   pesoExtra: Double,
+   fuerzaExtra: Int,
+   velocidadExtra: Int,
+   evoluciones : List[(Int, Especie)] //guarda la historia de las evoluciones
+  ) {
+
+  // Inicializacion atributos calculados
+  val nivel = calcularNivel
+  val energiaMaxima =  especie.energiaMaximaInc * nivel + energiaMaximaExtra
+  val peso =  especie.pesoInc * nivel + pesoExtra
+  val fuerza = especie.fuerzaInc * nivel + fuerzaExtra
+  val velocidad = especie.velocidadInc * nivel + velocidadExtra
+  
+  require (fuerza >= 1 && fuerza <= 100, "La fuerza debe ser un valor entre 1 y 100. Actual: %d".format(fuerza))
+  require (peso >= 0 && peso <= especie.pesoMaximo, "El peso debe ser un valor entre 0 y %f. Actual: %f".format(especie.pesoMaximo, peso))
+  require (velocidad >= 1 && velocidad <= 100, "La velocidad debe ser un valor entre 1 y 100. Actual: %d".format(velocidad))      
+  require (energia >= 0 && energia <= energiaMaxima, "La energia debe ser un valor entre 0 y %d. Actual: %d".format(energiaMaxima, energia))
+  
+  
+  //Calcula el nivel en base a la experiencia
+  private def calcularNivel : Int = {
+    Range(1, 101).find { nivel => experienciaNivel(nivel + 1) > this.experiencia }.getOrElse(1)
+  }
+  
+  //Devuelve experiencia necesaria para X nivel teniendo en cuenta las resistencias evolutivas pasadas.
+  def experienciaNivel(nivel: Int): Long = {
+    nivel match {
+      case 1 => 0
+      case x => 2 * experienciaNivel(x - 1) + evoluciones.find { tupla => x <= tupla._1 }.fold(especie)(tupla => tupla._2).resistenciaEvolutiva
+    }
+  }
+  
+  private def actualizarEvoluciones() : Pokemon = {
+    especie.condicionEvolucion.fold(this)(_.evolucionar(this))
+  }
+  
+  def evolucionar: Pokemon = {
+    especie.evolucion.fold(this)(nuevaEspecie => 
+      if (especie != nuevaEspecie)
+        copy(especie = nuevaEspecie, evoluciones = evoluciones :+ (this.nivel, this.especie))
+      else
+        this
+      )
+  }
+  
   def tipoPrincipal: Tipo = especie.tipoPrincipal
   def tipoSecundario: Option[Tipo] = especie.tipoSecundario
   def esMacho: Boolean = genero == Masculino
@@ -26,49 +85,13 @@ case class Pokemon(
   def esTipoSecundario(t: Tipo): Boolean = t == tipoSecundario.getOrElse(false)
   def algunTipoEs(t: Tipo): Boolean = (tipoPrincipal == t) || (tipoSecundario.getOrElse(false) == t)
 
-  def subirVelocidad(dif: Int): Pokemon = copy(velocidad = this.velocidad + dif)
+  def cambiarVelocidad(dif: Int): Pokemon = copy(velocidadExtra = this.velocidadExtra + dif)
+  def cambiarEnergia(dif: Int): Pokemon = copy(energia = this.energia + dif)
+  def cambiarPeso(dif: Double): Pokemon = copy(pesoExtra = peso + dif)
+  def cambiarFuerza(dif: Int): Pokemon = copy(fuerzaExtra = this.fuerzaExtra + dif)
+  def cambiarExperiencia(dif: Long): Pokemon = copy(experiencia = experiencia + dif).actualizarEvoluciones()
 
-  def subirEnergia(dif: Int): Pokemon = copy(energia = this.energia + dif)
-  def bajarEnergia(dif: Int): Pokemon = copy(energia = this.energia - dif)
-
-  def subirExperiencia(dif: Int): Pokemon = copy(experiencia = experiencia + dif).subirNivel
-
-  def bajarPeso(dif: Double): Pokemon = copy(peso = peso - dif)
-  def subirPeso(dif: Double): Pokemon = copy(peso = peso + dif)
-
-  def subirFuerza(dif: Int): Pokemon = copy(fuerza = this.fuerza + dif)
-
-  def experienciaNivel(nivel: Int): Int = {
-    nivel match {
-      case 1 => 0
-      case x => 2 * experienciaNivel(x - 1) + especie.resistenciaEvolutiva
-    }
-  }
-
-  def subirNivel: Pokemon = {
-    if (experiencia >= experienciaNivel(nivel + 1))
-      especie.condicionEvolucion.fold(copy(nivel = nivel + 1))(_.subirNivel(copy(nivel = nivel + 1)))
-    else
-      this
-  }
-
-  def evolucionar: Pokemon = {
-    especie.evolucion.fold(this)(nuevaEspecie => copy(especie = nuevaEspecie))
-  }
-  
-  def getPokemonValido : Option[Pokemon] = {
-    Some(this)
-  }
-  
-  
-  //Validaciones
-  def esNivelValido : Boolean = (nivel >= 1 && nivel <= 100) 
-  def esFuerzaValida : Boolean = (fuerza >= 1 && fuerza <= 100)
-  def esGeneroValido : Boolean = (genero == Masculino || genero == Femenino)
-  def esVelocidadValida : Boolean = (velocidad >= 1 && velocidad <= 100) 
-  def esPesoValido : Boolean = (peso >= 0 && peso <= 100) 
-  
-  def esPokemonValido : Boolean = esNivelValido && esFuerzaValida && esGeneroValido && esVelocidadValida && esPesoValido
+ 
 }
 
 

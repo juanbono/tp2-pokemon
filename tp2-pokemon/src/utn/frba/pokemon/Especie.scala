@@ -2,12 +2,12 @@ package utn.frba.pokemon
 
 case class Especie (
     val id: Int = 0, // MissingNo.
-    val resistenciaEvolutiva: Int = 10,
-    val pesoMaximo: Double = 0,
-    val energiaMaximaInc: Int = 0,
-    val pesoInc: Double = 0,
-    val fuerzaInc: Int = 0,
-    val velocidadInc: Int = 0,
+    val resistenciaEvolutiva: Int = 100,
+    val pesoMaximo: Double = 40,
+    val energiaMaximaInc: Int = 10,
+    val pesoInc: Double = 0.1,
+    val fuerzaInc: Int = 1,
+    val velocidadInc: Int = 1,
     val tipoPrincipal: Tipo,
     val tipoSecundario: Option[Tipo] = None,
     val evolucion: Option[Especie] = None,
@@ -17,9 +17,39 @@ case class Especie (
 // Aca se definen todas las especies conocidas.
  
 
-object Charmander extends Especie (id = 4, resistenciaEvolutiva = 350, tipoPrincipal = Fuego, evolucion = Some(Charmeleon), condicionEvolucion = Some(new SubirNivelEvolucion(5)))
-object Charmeleon extends Especie (id = 5, tipoPrincipal = Fuego, evolucion = Some(Charizard), condicionEvolucion = Some(new SubirNivelEvolucion(36)))
-object Charizard extends Especie (id = 6, tipoPrincipal = Fuego)
+object Charmander extends Especie (
+    id = 4, 
+    resistenciaEvolutiva = 350,
+    energiaMaximaInc = 10,
+    pesoInc = 0.5,
+    fuerzaInc = 3,
+    velocidadInc = 1, 
+    tipoPrincipal = Fuego,
+    evolucion = Some(Charmeleon),
+    condicionEvolucion = Some(new SubirNivelEvolucion(5))
+    )
+
+object Charmeleon extends Especie (
+    id = 5, 
+    resistenciaEvolutiva = 500,
+    energiaMaximaInc = 20,
+    pesoInc = 1,
+    fuerzaInc = 4,
+    velocidadInc = 2,
+    tipoPrincipal = Fuego, 
+    evolucion = Some(Charizard), 
+    condicionEvolucion = Some(new SubirNivelEvolucion(20))
+    )
+
+object Charizard extends Especie (
+    id = 6,
+    resistenciaEvolutiva = 1000,
+    energiaMaximaInc = 50,
+    pesoInc = 2,
+    fuerzaInc = 5,
+    velocidadInc = 5,
+    tipoPrincipal = Fuego
+    )
 
 object Nidorin extends Especie ( id = 30, tipoPrincipal = Veneno, evolucion = Some(Nidorina), condicionEvolucion = Some(new SubirNivelEvolucion(16)))
 object Nidorina extends Especie (id = 31, tipoPrincipal = Veneno, evolucion = Some(Nidoqueen), condicionEvolucion = Some(new UsarPiedraLunarEvolucion))
@@ -29,6 +59,6 @@ object Poliwag extends Especie (id = 60, tipoPrincipal = Agua, evolucion = Some(
 object Poliwhirl extends Especie (id = 61, tipoPrincipal = Agua, evolucion = Some(Poliwrath), condicionEvolucion = Some(new UsarPiedraEvolucion))
 object Poliwrath extends Especie (id = 62, tipoPrincipal = Agua, tipoSecundario = Some(Pelea))
 
-object Squirtle extends Especie (id = 7, tipoPrincipal = Agua, evolucion = Some(Wartortle), condicionEvolucion = None)
-object Wartortle extends Especie (id = 8, tipoPrincipal = Agua, evolucion = Some(Blastoise), condicionEvolucion = None)
-object Blastoise extends Especie (id = 9, tipoPrincipal = Agua, evolucion = None, condicionEvolucion = None)
+object Squirtle extends Especie (id = 7, resistenciaEvolutiva = 220, tipoPrincipal = Agua, evolucion = Some(Wartortle), condicionEvolucion = None)
+object Wartortle extends Especie (id = 8, resistenciaEvolutiva = 300,  tipoPrincipal = Agua, evolucion = Some(Blastoise), condicionEvolucion = None)
+object Blastoise extends Especie (id = 9, resistenciaEvolutiva = 400, tipoPrincipal = Agua, evolucion = None, condicionEvolucion = None)
