@@ -25,7 +25,11 @@ case class Pokemon(
   def esTipoPrincipal(t: Tipo): Boolean = t == tipoPrincipal
   def esTipoSecundario(t: Tipo): Boolean = t == tipoSecundario.getOrElse(false)
   def algunTipoEs(t: Tipo): Boolean = esTipoPrincipal(t) || esTipoSecundario(t)
-
+  def tieneEstado(t: Estado): Boolean = this.estado match {
+    case None => false
+    case Some(v) if (v == t) => false
+    case _ => false
+   }
   def cambiarEstado(e: Option[Estado]): Pokemon = e match {
     case None    => copy(estado = None)
     case Some(s) => copy(estado = Some(s))

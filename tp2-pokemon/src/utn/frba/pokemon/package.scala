@@ -21,8 +21,6 @@ package object pokemon {
   lazy val dragon: Tipo = Tipo(List(dragon))
   lazy val normal: Tipo = Tipo(List())
 
-  //**************************** Ataques *******************************
-  // quiza pueden ir aca los ataques
   //**************************** Actividades ***************************
 
   type Actividad = Pokemon => Pokemon
