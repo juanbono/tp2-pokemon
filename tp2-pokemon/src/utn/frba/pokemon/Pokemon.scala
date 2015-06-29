@@ -1,4 +1,5 @@
 package utn.frba.pokemon
+import scala.util.{Try, Success, Failure}
 
 //sealed dice que ayuda al motor de inferencia a la hora del  pattern matching y los pongo como case objects para lo mismo 
 // y porque no toman parametros ni nada.
@@ -11,17 +12,17 @@ object Pokemon {
   def make(
           experiencia: Long = 0,
           especie: Especie,
-          ataques: List[Ataque] = List(new AtaqueDefault),
+          ataques: List[Ataque] = List(AtaqueDefault),
           genero: Genero = Masculino,
           energia: Int = 0,
+          estado: Estado = EstadoNormal,
           energiaMaximaExtra: Int = 0,
           pesoExtra: Double = 0 ,
           fuerzaExtra: Int = 0,
           deltaVelocidad: Int = 0
-        ) : Pokemon = {
+        ) : Try[Pokemon] = {
 
-     val pokemon = Pokemon(experiencia, especie, ataques, genero, energia, energiaMaximaExtra, pesoExtra, fuerzaExtra, deltaVelocidad, List())
-     pokemon.actualizarEvoluciones()
+     Try(Pokemon(experiencia, especie, ataques, genero, energia, estado, energiaMaximaExtra, pesoExtra, fuerzaExtra, deltaVelocidad, List()).actualizarEvoluciones())
     }
   }
   
@@ -31,6 +32,7 @@ case class Pokemon private (
   val ataques: List[Ataque],
   val genero: Genero,
   val energia: Int,
+  val estado: Estado,
    energiaMaximaExtra: Int,
    pesoExtra: Double,
    fuerzaExtra: Int,
@@ -90,8 +92,8 @@ case class Pokemon private (
   def cambiarPeso(dif: Double): Pokemon = copy(pesoExtra = peso + dif)
   def cambiarFuerza(dif: Int): Pokemon = copy(fuerzaExtra = this.fuerzaExtra + dif)
   def cambiarExperiencia(dif: Long): Pokemon = copy(experiencia = experiencia + dif).actualizarEvoluciones()
+  def cambiarEstado(estado : Estado): Pokemon = copy(estado = estado)
 
- 
 }
 
 

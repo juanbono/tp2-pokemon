@@ -1,5 +1,6 @@
 package utn.frba.pokemon
 
+import scala.util.{Try, Success, Failure}
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.assertFalse
@@ -10,14 +11,15 @@ import org.junit.Ignore
 
 class EvolucionTest {
 
-  @Test(expected=classOf[IllegalArgumentException])
+  @Test
   def `Crear Pokemon con valores invalidos` = {
-    val poke = Pokemon.make(fuerzaExtra = 110, especie = Charizard, ataques = List(new MordidaAtaque))
+    val poke = Pokemon.make(fuerzaExtra = 110, especie = Charizard, ataques = List(MordidaAtaque))
+    assertTrue(poke.isFailure)
   }
   
   @Test
   def `Pokemon calcula su nivel en base a la experiencia` = {
-    var pokemon = Pokemon.make(experiencia = 350, especie = Charmander)
+    var pokemon = Pokemon.make(experiencia = 350, especie = Charmander).get
 
     assertEquals(2, pokemon.nivel)
     assertEquals(350, pokemon.experiencia)
@@ -25,7 +27,7 @@ class EvolucionTest {
   
   @Test
   def `Pokemon calcula sus atributos dinamicamente` = {
-    var pokemon = Pokemon.make(experiencia = 1050, especie = Charmander)
+    var pokemon = Pokemon.make(experiencia = 1050, especie = Charmander).get
 
     assertEquals(3, pokemon.nivel)
     assertEquals(30, pokemon.energiaMaxima)
@@ -37,7 +39,7 @@ class EvolucionTest {
   @Test
   def `Pokemon aplica incrementos retroactivamente` = {
     //Primera evolucion usa los incrementos de Charmander
-    var pokemon = Pokemon.make(experiencia = 0, especie = Charmander)
+    var pokemon = Pokemon.make(experiencia = 0, especie = Charmander).get
 
     assertEquals(Charmander, pokemon.especie)
     assertEquals(1, pokemon.nivel)
@@ -66,24 +68,36 @@ class EvolucionTest {
     assertEquals(Charizard.velocidadInc * 20, pokemon.velocidad)
   
   }
+  
+  @Test
+  def `Pokemon KO no puede realizar una actividad` = {
+
+    //Tipo de ataque es igual al tipo princial del pokemon.
+    var pokemon =  Pokemon.make(estado = EstadoKO("KO"), experiencia = 1000, especie = Charmander).get
+
+    val resultado = UsarPocion.ejecutar(pokemon)
+    
+    assertTrue(resultado.isFailure)
+
+  }
 
   @Test
   def `Pokemon gana 50 de experiencia y sube de nivel.` = {
 
     //Tipo de ataque es igual al tipo princial del pokemon.
-    var ataque = new MordidaAtaque(puntosDeAtaque = 1, maximoInicialPA = 10)
-    var pokemon =  Pokemon.make(experiencia = 1000, especie = Charmander, ataques = List(ataque))
+    var ataque =  MordidaAtaque
+    var pokemon =  Pokemon.make(experiencia = 1000, especie = Charmander, ataques = List(ataque)).get
     var actividad = new RealizarUnAtaque(ataque)
 
-    val resultado = actividad.ejecutar(pokemon)
+    val resultado = actividad.ejecutar(pokemon).get
 
-    assertEquals(3, resultado.pokemon.nivel)
-    assertEquals(1050, resultado.pokemon.experiencia)
+    assertEquals(3, resultado.nivel)
+    assertEquals(1050, resultado.experiencia)
   }
 
   @Test
   def `Evoluciona al subir nivel dada la experiencia inicial.` {
-    var pokemon = Pokemon.make(especie = Charmander, experiencia = 999999)
+    var pokemon = Pokemon.make(especie = Charmander, experiencia = 999999).get
       
     assertEquals(12, pokemon.nivel)
     assertEquals(Charmeleon, pokemon.especie)
@@ -91,51 +105,49 @@ class EvolucionTest {
 
   @Test
   def `Evolucionar por usar piedra lunar` {
-    var pokemon = Pokemon.make(especie = Nidorina)
+    var pokemon = Pokemon.make(especie = Nidorina).get
+    val resultado = UsarPiedra(PiedraLunar()).ejecutar(pokemon).get
 
-    pokemon = Simulador.entrenar(pokemon, UsarPiedra(PiedraLunar())).fold(null)(p => p)
-
-    assertEquals(1, pokemon.nivel)
-    assertEquals(pokemon.especie, Nidoqueen)
+    assertEquals(1, resultado.nivel)
+    assertEquals(resultado.especie, Nidoqueen)
   }
 
   @Test
   def `Evolucionar por usar piedra del mismo tipo` {
-    var pokemon = Pokemon.make(
-      especie = Poliwhirl)
+    var pokemon = Pokemon.make(especie = Poliwhirl).get
 
-    pokemon = Simulador.entrenar(pokemon, UsarPiedra(PiedraEvolutivaComun(Agua))).fold(null)(p => p)
+    pokemon = UsarPiedra(PiedraEvolutivaComun(Agua)).ejecutar(pokemon).get
 
-    //assertEquals(25, pokemon.nivel)
+    assertTrue(pokemon.tipoPrincipal == Agua)
     assertEquals(pokemon.especie, Poliwrath)
   }
 
   @Test
   def `Usar piedra envenenadora` {
-    var pokemon = Pokemon.make(especie = Poliwhirl)
+    var pokemon = Pokemon.make(especie = Poliwhirl).get
 
     var piedra = PiedraEvolutivaComun(Electrico)
 
-    val resultado = Simulador.entrenar(pokemon, UsarPiedra(piedra))
+    val resultado = UsarPiedra(piedra).ejecutar(pokemon).get
 
-    assertEquals(EstadoEnvenenado(resultado.pokemon), resultado)
+    assertEquals(EstadoEnvenenado, resultado.estado)
   }
 
-  @Test(expected=classOf[IllegalArgumentException])
+  @Test
   def `Actividad deja valores invalidos en pokemon.` {
-    var pokemon = Pokemon.make(deltaVelocidad = 99, especie = Poliwhirl)
-    var resultado = Simulador.entrenar(pokemon, ComerCalcio)
-
-    assertEquals(resultado, EstadoActividadNoEjecutada(resultado.pokemon, List("La actividad produce estado invalido", "velocidad debe ser un numero de 1 a 100").toString()))
-
+    var pokemon = Pokemon.make(deltaVelocidad = 99, especie = Poliwhirl).get
+    var pokemonResultado = ComerCalcio.ejecutar(pokemon)
+     
+    assertTrue(pokemonResultado.isFailure)
   }
+  
   @Test
   def `AlAtacarBajanLosPA` = {
-    val ataque = Ataque(Agua, 1, 3, (p: Pokemon) => EstadoNormal(p.cambiarExperiencia(3)))
-    val unSquartle = Pokemon.make(experiencia = 0, especie = Squirtle, fuerzaExtra = 2, ataques = List(ataque))
+    val ataque = Ataque(Agua, 1, 3, (p: Pokemon) => Try(p.cambiarExperiencia(3)))
+    val unSquartle = Pokemon.make(experiencia = 0, especie = Squirtle, fuerzaExtra = 2, ataques = List(ataque)).get
     val paInicial = unSquartle.ataques.find((a) => a == ataque).get.puntosDeAtaque
-    val resultado = Simulador.entrenar(unSquartle, RealizarUnAtaque(ataque))
+    val resultado = entrenarPokemon(unSquartle, RealizarUnAtaque(ataque)).get
 
-    assertEquals(paInicial - 1, resultado.pokemon.ataques.find((a) => a == ataque.bajarPA).get.puntosDeAtaque)
+    assertEquals(paInicial - 1, resultado.ataques.find((a) => a == ataque.bajarPA).get.puntosDeAtaque)
   }
 }

@@ -16,7 +16,6 @@ case class Especie (
 
 // Aca se definen todas las especies conocidas.
  
-
 object Charmander extends Especie (
     id = 4, 
     resistenciaEvolutiva = 350,
