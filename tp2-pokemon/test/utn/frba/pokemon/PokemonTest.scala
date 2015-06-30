@@ -1,3 +1,4 @@
+/*
 package utn.frba.pokemon
 
 import org.junit.Assert.assertEquals
@@ -10,11 +11,19 @@ import org.junit.Ignore
 
 class EvolucionTest {
 
-  @Test
-  def `Pokemon con valores invalidos` = {
-    val poke = Pokemon(nivel = 0, especie = Charizard, ataques = List(new MordidaAtaque))
+  // Setup 
+  val impactTrueno = Ataque(electrico, 1, 3, (p: Pokemon) => p.subirExperiencia(3))
+  val pikachu = Especie(id = 1,resistenciaEvolutiva = 10,pesoMaximo = 0,energiaMaximaInc = 0,pesoInc = 0,fuerzaInc = 0,velocidadInc = 0,
+      tipoPrincipal = electrico,tipoSecundario = None,evolucion = None,condicionEvolucion = None)
 
-    assertFalse(poke.esPokemonValido)
+  val unPikachu = Pokemon(experiencia = 0,genero = Masculino,energia = 0,pesoExtra = 0,fuerzaExtra = 0,velocidadExtra = 0,especie = pikachu,estado = None,
+    ataques = List(impactTrueno))
+    
+  @Test
+  val unPikachuInvalido = Pokemon(experiencia = -10,genero = Masculino,energia = -10,pesoExtra = -10,fuerzaExtra = 0,velocidadExtra = 0,especie = pikachu,estado = None,
+    ataques = List(impactTrueno))
+
+    assertFalse(unPikachuInvalido.esPokemonValido) // fijarse este test.
   }
 
   @Test
@@ -86,7 +95,7 @@ class EvolucionTest {
   }
   @Test
   def `AlAtacarBajanLosPA` = {
-    val ataque = Ataque(Agua, 1, 3, (p: Pokemon) => EstadoNormal(p.subirExperiencia(3)))
+    val ataque = Ataque(agua, 1, 3, (p: Pokemon) => p.subirExperiencia(3))
     val unSquartle = Pokemon(nivel = 1, experiencia = 0, especie = Squirtle, fuerza = 2, ataques = List(ataque))
     val paInicial = unSquartle.ataques.find((a) => a == ataque).get.puntosDeAtaque
     val resultado = Simulador.entrenar(unSquartle, RealizarUnAtaque(ataque))
@@ -94,3 +103,4 @@ class EvolucionTest {
     assertEquals(paInicial - 1, resultado.pokemon.ataques.find((a) => a == ataque.bajarPA).get.puntosDeAtaque)
   }
 }
+*/

@@ -8,10 +8,11 @@ case class Ataque(val tipo: Tipo, val puntosDeAtaque: Int, val maximoInicialPA: 
     pokemon match {
       case _ if this.puntosDeAtaque == 0 => throw NoPAException("Pokemon no puede realizar ataque: No tiene suficientes puntos de ataque para atacar")
       case _ if !pokemon.ataques.contains(this) => throw UnknownAttackException("Pokemon no puede realizar ataque: No conoce el ataque %s".format(this.getClass.toString()))
-      case _ if tipo == dragon => experiencia = 80
+      case _ if tipo == Dragon => experiencia = 80
       case _ if pokemon.esTipoPrincipal(tipo) => experiencia = 50
       case _ if pokemon.esTipoSecundario(tipo) && pokemon.esHembra => experiencia = 40
       case _ if pokemon.esTipoSecundario(tipo) && pokemon.esMacho => experiencia = 20
+      case _ => throw InvalidPokemonTypeException("Tipo de Ataque distinto al tipo principal y secundario")
     }
 
     // aca manejo lo de bajarle 1 PA al ataque 
