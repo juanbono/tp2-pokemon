@@ -13,17 +13,24 @@ import org.junit.runner.RunWith
 
 class GymTest {
   // Setup
+  // ataques
   val explosion = Ataque(Electrico, 2, 3, (p: Pokemon) => p.cambiarEstado(Some(KO("El pokemon se autodestruyo de una explosion."))))
+  val mordida = Ataque(Electrico, 2, 3, (p: Pokemon) => p.cambiarVelocidad(3))
   val enfocarse = Ataque(Normal, 2, 3, (p: Pokemon) => p.cambiarVelocidad(1))
   val reposar = Ataque(Normal, 2, 3, (p: Pokemon) => p.copy(energia = p.energiaMaxima).cambiarEstado(Some(Dormido(0))))
   val ataqueNulo = Ataque(Normal, 2, 3, (p: Pokemon) => p)
   val impactTrueno = Ataque(Electrico, 1, 3, (p: Pokemon) => p.subirExperiencia(3))
-  val pikachu = Especie(id = 1, resistenciaEvolutiva = 10, pesoMaximo = 0, energiaMaximaInc = 300, pesoInc = 0, fuerzaInc = 0, velocidadInc = 0,
+
+  // pokemones
+  val pikachu = Especie(id = 1, resistenciaEvolutiva = 10, pesoMaximo = 0, energiaMaximaInc = 300, pesoInc = 0, fuerzaInc = 1, velocidadInc = 0,
     tipoPrincipal = Electrico, tipoSecundario = Some(Normal), evolucion = None, condicionEvolucion = None)
+  val squartle = Especie(id = 2, resistenciaEvolutiva = 10, pesoMaximo = 0, energiaMaximaInc = 300, pesoInc = 0, fuerzaInc = 1, velocidadInc = 0,
+    tipoPrincipal = Agua, tipoSecundario = Some(Normal), evolucion = None, condicionEvolucion = None)
 
   val unPikachu = Pokemon(experiencia = 0, genero = Masculino, energia = 0, pesoExtra = 0, fuerzaExtra = 0, velocidadExtra = 0, especie = pikachu, estado = None,
-    ataques = List(impactTrueno, ataqueNulo, reposar,enfocarse,explosion))
-
+    ataques = List(impactTrueno, ataqueNulo, reposar, enfocarse, explosion))
+  val unSquartle = Pokemon(experiencia = 0, genero = Hembra, energia = 0, pesoExtra = 0, fuerzaExtra = 0, velocidadExtra = 0, especie = pikachu, estado = None,
+    ataques = List(ataqueNulo))
   @Test
   def `PokemonUsaPocion` = {
     val resultado = Simulador.realizarActividad(unPikachu, usarPocion)
@@ -63,40 +70,38 @@ class GymTest {
 
   @Test
   def `Un pokemon KO no realiza ninguna actividad` = {
-    val rutinaSuicida = ("Rutina Suicida", List(realizarAtaque(explosion),usarPocion,usarPocion,usarPocion))
+    val rutinaSuicida = ("Rutina Suicida", List(realizarAtaque(explosion), usarPocion, usarPocion, usarPocion))
     val resultado = Simulador.realizarRutina(unPikachu, rutinaSuicida)
     assert(resultado.isFailure)
   }
 
-  /*
   @Test
-  def `Si un pokemon no sabe la actividad no la ejecuta` = {
-    val resul = Simulador.entrenar(unCharizard, RealizarUnAtaque(mordida))
-    assert(resul.isInstanceOf[EstadoActividadNoEjecutada])
+  def `Si un pokemon no sabe el ataque no lo realiza` = {
+    val resultado = Simulador.realizarActividad(unPikachu, realizarAtaque(mordida))
+    assert(resultado.isFailure)
   }
 
   @Test
   def `Un pokemon puede levantar pesas` = {
     val kilosLevantados = 2
-    val resul = Simulador.entrenar(unCharizard, LevantarPesas(kilosLevantados))
-    assertEquals(unCharizard.experiencia + kilosLevantados, resul.pokemon.experiencia)
+    val resultado = Simulador.realizarActividad(unPikachu, levantarPesas(kilosLevantados))
+    assertEquals(unPikachu.experiencia + kilosLevantados, resultado.get.experiencia)
   }
 
   @Test
   def `Un pokemon puede nadar` = {
     val minutosNadados = 2
-    val resul = Simulador.entrenar(unSquartle, Nadar(minutosNadados))
-    assertEquals(unSquartle.energia - minutosNadados, resul.pokemon.energia)
-    assertEquals(unSquartle.experiencia + 200, resul.pokemon.experiencia)
-    assertEquals(unSquartle.velocidad + (minutosNadados % 60), resul.pokemon.velocidad)
+    val resultado = Simulador.realizarActividad(unSquartle, nadar(minutosNadados))
+    assertEquals(unSquartle.energia - minutosNadados, resultado.get.energia)
+    assertEquals(unSquartle.experiencia + 200, resultado.get.experiencia)
+    assertEquals(unSquartle.velocidad + (minutosNadados % 60), resultado.get.velocidad)
 
   }
-  
+
     @Test
   def `SeAceptanRutinasVacias` = {
     val rutinaVacia = ("Rutina sin actividades", Nil)
     val resultado = Simulador.realizarRutina(unPikachu, rutinaVacia)
     assert(resultado.isFailure)
   }
-*/
 }
