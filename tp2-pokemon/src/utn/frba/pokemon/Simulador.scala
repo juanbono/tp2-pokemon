@@ -6,23 +6,26 @@ object Simulador {
   type Rutina = (String, List[Actividad])
   def actividades(r: Rutina) = r._2
   def nombre(r: Rutina) = r._1
-  
+
   type ResultadoRutina = (Try[Pokemon], Rutina)
   def pokemonEntrenado(rr: ResultadoRutina) = rr._1
   def rutinaRealizada(rr: ResultadoRutina) = rr._2
 
   def realizarActividad(p: Pokemon, actividad: Actividad): Try[Pokemon] = p.estado match {
-    case None => Try(p).map(actividad)
-    case Some(KO(msg))  => Failure(KOException(msg))
-    case Some(Dormido(x)) => if (x == 3) Try(p) else Try(p.cambiarEstado(Some(Dormido(x-1))))
-    case _ => Try(p).map(actividad)
+    case None             => Try(p).map(actividad)
+    case Some(KO(msg))    => Failure(KOException(msg))
+    case Some(Dormido(x)) => if (x == 3) Try(p) else Try(p.cambiarEstado(Some(Dormido(x - 1))))
+    case _                => Try(p).map(actividad)
   }
 
   def realizarRutina(p: Pokemon, rutina: Rutina): Try[Pokemon] = actividades(rutina).foldLeft(Try(p)) { (pokemonEntrenando, actividad) =>
-    pokemonEntrenando match {
-      case Success(_) => pokemonEntrenando.map(actividad)
-      case Failure(_) => pokemonEntrenando
-    }
+    if (actividades(rutina) == Nil)
+      throw emptyRoutineException("Se ha pasado una rutina vacia como parametro")
+    else
+      pokemonEntrenando match {
+        case Success(_) => Simulador.realizarActividad(pokemonEntrenando.get, actividad)
+        case Failure(_) => pokemonEntrenando
+      }
   }
 
   def analizarRutinas(p: Pokemon, criterio: (Pokemon, Pokemon) => Boolean, rutinas: List[Rutina]): String = {
@@ -31,7 +34,7 @@ object Simulador {
 
     mejorRutina match {
       case None     => "Ninguna rutina"
-      case Some(rr) =>  nombre(rutinaRealizada(rr))
+      case Some(rr) => nombre(rutinaRealizada(rr))
     }
   }
 }
