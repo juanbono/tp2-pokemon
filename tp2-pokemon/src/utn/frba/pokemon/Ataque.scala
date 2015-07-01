@@ -2,18 +2,19 @@ package utn.frba.pokemon
 import scala.util.{Try, Success, Failure}
 
 //Los Ataques son un tipo de Actividad
-case class Ataque(val tipo : Tipo = Normal, val puntosDeAtaque : Int = 1, val maximoInicialPA : Int = 10, val efecto: (Pokemon => Try[Pokemon])) extends Actividad {
+case class Ataque(val tipo : Tipo = Normal, val puntosDeAtaque : Int = 1, val maximoInicialPA : Int = 10, val efecto: (Pokemon => Try[Pokemon])) {
   
-  def aplicar(pokemon : Pokemon) : Try[Pokemon] = {
+  def apply(pokemon : Pokemon) : Try[Pokemon] = {
     var experiencia = 0
     
     pokemon match {
-      case _ if this.puntosDeAtaque == 0 => return Try(throw PuntosDeAtaqueInsuficientesExceltion ("Pokemon no puede realizar ataque: No tiene suficientes puntos de ataque para atacar"))
+      case _ if this.puntosDeAtaque == 0 => return Try(throw PuntosDeAtaqueInsuficientesException ("Pokemon no puede realizar ataque: No tiene suficientes puntos de ataque para atacar"))
       case _ if !pokemon.ataques.contains(this) => return Try(throw UnknownAttackException("Pokemon no puede realizar ataque: No conoce el ataque %s".format(this.getClass.toString())))
       case _ if tipo == Dragon => experiencia = 80
       case _ if pokemon.esTipoPrincipal(tipo) => experiencia = 50
       case _ if pokemon.esTipoSecundario(tipo) && pokemon.esHembra => experiencia = 40
       case _ if pokemon.esTipoSecundario(tipo) && pokemon.esMacho => experiencia = 20
+      case _  => return Try(throw IncorrectAttackTypeException("El tipo del ataque no coincide con ningun tipo del pokemon"))
     }
 
     val a1 = pokemon.ataques.find((a: Ataque) => a == this).get.bajarPA

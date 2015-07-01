@@ -146,7 +146,7 @@ class EvolucionTest {
     val ataque = Ataque(Agua, 1, 3, (p: Pokemon) => Try(p.cambiarExperiencia(3)))
     val unSquartle = Pokemon.make(experiencia = 0, especie = Squirtle, fuerzaExtra = 2, ataques = List(ataque)).get
     val paInicial = unSquartle.ataques.find((a) => a == ataque).get.puntosDeAtaque
-    val resultado = entrenarPokemon(unSquartle, RealizarUnAtaque(ataque)).get
+    val resultado = RealizarUnAtaque(ataque)(unSquartle).get
 
     assertEquals(paInicial - 1, resultado.ataques.find((a) => a == ataque.bajarPA).get.puntosDeAtaque)
   }

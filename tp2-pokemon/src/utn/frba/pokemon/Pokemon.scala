@@ -93,6 +93,8 @@ case class Pokemon private (
   def cambiarFuerza(dif: Int): Pokemon = copy(fuerzaExtra = this.fuerzaExtra + dif)
   def cambiarExperiencia(dif: Long): Pokemon = copy(experiencia = experiencia + dif).actualizarEvoluciones()
   def cambiarEstado(estado : Estado): Pokemon = copy(estado = estado)
+  
+  def puedeHacerActividad : Boolean = false
 
 }
 

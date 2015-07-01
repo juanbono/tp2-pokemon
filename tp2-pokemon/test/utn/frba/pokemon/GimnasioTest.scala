@@ -25,43 +25,43 @@ class GimnasioTest {
 
   @Test
   def `PokemonUsaPocion` = {
-    val resul = entrenarPokemon(unCharizard, UsarPocion).get
+    val resul = UsarPocion(unCharizard).get
     assertEquals(unCharizard.energia + 50, resul.energia)
   }
 
   @Test
   def `PokemonAtacaConUnAtaqueQueNoCambiaDeEstado` = {
-    val resul = entrenarPokemon(unCharizard, RealizarUnAtaque(enfocarse)).get
+    val resul =  RealizarUnAtaque(enfocarse)(unCharizard).get
     assertEquals(unCharizard.velocidad + 1, resul.velocidad)
   }
 
   @Test
   def `PokemonAtacaConUnAtaqueQueCambiaSuEstado` = {
-    val resul = entrenarPokemon(unCharizard, RealizarUnAtaque(reposar)).get
+    val resul = RealizarUnAtaque(reposar)(unCharizard).get
     assert((resul.estado.isInstanceOf[EstadoDormido]) && (resul.energia == resul.energiaMaxima))
   }
 
   @Test
   def `PokemonPuedeTomar3Pociones` = {
-    val resul = entrenarPokemon(unCharizard, UsarPocion, UsarPocion, UsarPocion).get
+    val resul = realizarRutina(unCharizard, ("rutina1", List(UsarPocion, UsarPocion, UsarPocion))).get
     assertEquals(unCharizard.energia + 150, resul.energia)
   }
 
   @Test
   def `SeAceptanRutinasVacias` = {
-    val resul = entrenarPokemon(unCharizard).get
+    val resul = realizarRutina(unCharizard, ("rutina vacia", List())).get
     assert((unCharizard == resul) && (resul.estado == EstadoNormal))
   }
 
   @Test
   def `ElPokemonGanaExperienciaAlAtacar` = {
-    val resul = entrenarPokemon(unCharizard, RealizarUnAtaque(enfocarse)).get
+    val resul = RealizarUnAtaque(enfocarse)(unCharizard).get
     assertEquals(unCharizard.experiencia + 50, resul.experiencia)
   }
 
   @Test
   def `Un pokemon KO no realiza ninguna actividad y arroja excepcion` = {
-    val resul = entrenarPokemon(unCharizard, RealizarUnAtaque(explosion), UsarPocion, UsarPocion, UsarPocion)
+    val resul = realizarRutina(unCharizard, ("rutina KO", List(RealizarUnAtaque(explosion), UsarPocion, UsarPocion, UsarPocion)))
     assertTrue(resul.isFailure)
     try {
       resul.get
@@ -74,7 +74,7 @@ class GimnasioTest {
 
   @Test
   def `Pokemon no conoce el ataque, lanza excepcion al intentar ejecutarlo` = {
-    val resul = entrenarPokemon(unCharizard, RealizarUnAtaque(mordida))
+    val resul = RealizarUnAtaque(mordida)(unCharizard)
     
     assertTrue(resul.isFailure)
   }
@@ -82,14 +82,14 @@ class GimnasioTest {
   @Test
   def `Un pokemon puede levantar pesas` = {
     val kilosLevantados = 2
-    val resul = entrenarPokemon(unCharizard, LevantarPesas(kilosLevantados)).get
+    val resul = LevantarPesas(kilosLevantados)(unCharizard).get
     assertEquals(unCharizard.experiencia + kilosLevantados, resul.experiencia)
   }
 
   @Test
   def `Un pokemon puede nadar` = {
     val minutosNadados = 2
-    val resul = entrenarPokemon(unSquartle, Nadar(minutosNadados)).get
+    val resul = Nadar(minutosNadados)(unSquartle).get
     assertEquals(unSquartle.energia - minutosNadados, resul.energia)
     assertEquals(unSquartle.experiencia + 200, resul.experiencia)
     assertEquals(unSquartle.velocidad + (minutosNadados % 60), resul.velocidad)
@@ -99,26 +99,26 @@ class GimnasioTest {
   @Test
   def `Un pokemon de fuego queda KO al nadar` = {
     val minutosNadados = 2
-    val resul = entrenarPokemon(unCharizard, Nadar(minutosNadados)).get
+    val resul = Nadar(minutosNadados)(unCharizard).get
     assert(resul.estado.isInstanceOf[EstadoKO])
   }
 
   @Test
   def `Un pokemon dormido ignora 3 actividades` = {
-    val resul = entrenarPokemon(unCharizard, RealizarUnAtaque(reposar), UsarPocion, UsarPocion, UsarPocion).get
+    val resul = realizarRutina(unCharizard, ("rutina1", List(RealizarUnAtaque(reposar), UsarPocion, UsarPocion, UsarPocion))).get
     assertEquals(unCharizard.energiaMaxima, resul.energia)
   }
   
   @Test
   def `Un pokemon dormido ignora 3 actividades pero se despierta en la 4ta` = {
-    val resul = entrenarPokemon(unCharizard, RealizarUnAtaque(reposar), UsarPocion, UsarPocion, UsarPocion, ComerHierro).get
+    val resul = realizarRutina(unCharizard, ("rutina1", List(RealizarUnAtaque(reposar), UsarPocion, UsarPocion, UsarPocion, ComerHierro))).get
     assertEquals(unCharizard.energiaMaxima, resul.energia)
     assertEquals(unCharizard.fuerza + 5, resul.fuerza)
   }
 
   @Test
   def `Un pokemon envenenado se cura al tomar antidoto` = {
-    val resul = entrenarPokemon(unSquartle, RealizarUnAtaque(chorroDeAguaDelRiachuelo), UsarAntidoto).get
+    val resul = realizarRutina(unSquartle, ("rutina", List(RealizarUnAtaque(chorroDeAguaDelRiachuelo), UsarAntidoto))).get
     assert(resul.estado == EstadoNormal)
   }
 
@@ -126,8 +126,8 @@ class GimnasioTest {
   @Test
   def `Rutina que ejecuta normalmente` = {
     val pokemon = Pokemon.make(experiencia = 0, energia = 0, energiaMaximaExtra = 100, especie = Charizard, fuerzaExtra = 10).get
-    val rutina = new Rutina(nombre = "Rutina 1", actividades = UsarPocion, UsarPocion, ComerHierro)
-    val resultado = rutina.ejecutar(pokemon)
+    val rutina = ("Rutina 1", List(UsarPocion, UsarPocion, ComerHierro))
+    val resultado = realizarRutina(pokemon, rutina)
 
     assertEquals(EstadoNormal, resultado.get.estado)
     assertEquals(100, resultado.get.energia)
@@ -137,8 +137,8 @@ class GimnasioTest {
   @Test
   def `Rutina que no puede ejecutar` = {
     val pokemon = Pokemon.make(experiencia = 0, especie = Charizard, fuerzaExtra = 10).get
-    val rutina = new Rutina(nombre = "Rutina 1", actividades = RealizarUnAtaque(mordida))
-    val resultado = rutina.ejecutar(pokemon)
+    val rutina = ("Rutina 1", List( RealizarUnAtaque(mordida)))
+    val resultado = realizarRutina(pokemon, rutina)
 
     // no conoce el ataque
     assertTrue(resultado.isFailure)
@@ -150,11 +150,11 @@ class GimnasioTest {
     
     val mayorNivelCriterio = (p1: Pokemon, p2: Pokemon) => p1.nivel > p2.nivel
     val pokemon = Pokemon.make(experiencia = 349, especie = Charizard, fuerzaExtra = 10, ataques = List(mordida)).get
-    val rutina1 = new Rutina(nombre = "Rutina 1", actividades = RealizarUnAtaque(enfocarse)) //no tiene el ataque
-    val rutina2 = new Rutina(nombre = "Rutina 2", actividades = RealizarUnAtaque(mordida)) //tiene el ataque, le sube experiencia
-    val rutina3 = new Rutina(nombre = "Rutina 3", actividades = RealizarUnAtaque(explosion)) //no tiene el ataque
+    val rutina1 = ("Rutina 1", List(RealizarUnAtaque(enfocarse))) //no tiene el ataque
+    val rutina2 = ("Rutina 2", List(RealizarUnAtaque(mordida))) //tiene el ataque, le sube experiencia
+    val rutina3 = ( "Rutina 3", List(RealizarUnAtaque(explosion))) //no tiene el ataque
 
-    assertEquals("Rutina 2", obtenerMejorRutina(pokemon, mayorNivelCriterio, rutina1, rutina2, rutina3))
+    assertEquals("Rutina 2", analizarRutinas(pokemon, mayorNivelCriterio, rutina1, rutina2, rutina3))
   }
 
   @Test
@@ -162,11 +162,11 @@ class GimnasioTest {
 
     val menorPesoCriterio = (p1: Pokemon, p2: Pokemon) => p1.peso < p2.peso
     val pokemon = Pokemon.make(genero = Femenino, pesoExtra = 30, especie = Charizard).get
-    val rutina1 = new Rutina(nombre = "Rutina 1", actividades = FingirIntercambio)
-    val rutina2 = new Rutina(nombre = "Rutina 2", actividades = FingirIntercambio, FingirIntercambio)
-    val rutina3 = new Rutina(nombre = "Rutina 3", actividades = FingirIntercambio, FingirIntercambio, FingirIntercambio)
+    val rutina1 = ("Rutina 1", List(FingirIntercambio))
+    val rutina2 = ("Rutina 2", List(FingirIntercambio, FingirIntercambio))
+    val rutina3 = ("Rutina 3", List(FingirIntercambio, FingirIntercambio, FingirIntercambio))
 
-    assertEquals("Rutina 3", obtenerMejorRutina(pokemon, menorPesoCriterio, rutina1, rutina2, rutina3))
+    assertEquals("Rutina 3", analizarRutinas(pokemon, menorPesoCriterio, rutina1, rutina2, rutina3))
   }
 
   @Test
@@ -174,35 +174,35 @@ class GimnasioTest {
 
     val mayorEnergiaCriterio = (p1: Pokemon, p2: Pokemon) => p1.energia > p2.energia
     val pokemon = Pokemon.make(genero = Femenino, energia = 0, energiaMaximaExtra = 100, pesoExtra = 10, especie = Charizard).get
-    val rutina1 = new Rutina(nombre = "Rutina 1", actividades = FingirIntercambio, UsarPocion)
-    val rutina2 = new Rutina(nombre = "Rutina 2", actividades = FingirIntercambio, FingirIntercambio)
-    val rutina3 = new Rutina(nombre = "Rutina 3", actividades = FingirIntercambio, FingirIntercambio, FingirIntercambio)
+    val rutina1 = ("Rutina 1", List(FingirIntercambio, UsarPocion))
+    val rutina2 = ("Rutina 2", List(FingirIntercambio, FingirIntercambio))
+    val rutina3 = ("Rutina 3", List(FingirIntercambio, FingirIntercambio, FingirIntercambio))
 
-    assertEquals("Rutina 1", obtenerMejorRutina(pokemon, mayorEnergiaCriterio, rutina1, rutina2, rutina3))
+    assertEquals("Rutina 1", analizarRutinas(pokemon, mayorEnergiaCriterio, rutina1, rutina2, rutina3))
   }
 
   @Test
   def `Obtener rutina que haga mas veloz a un pokemon ` = {
-    val rutina1 = new Rutina("Rutina 1", UsarPocion, UsarPocion)
-    val rutina2 = new Rutina("Rutina 2", Nadar(3), Nadar(3))
-    val rutina3 = new Rutina("Rutina 3", Nadar(3))
+    val rutina1 = ("Rutina 1", List(UsarPocion, UsarPocion))
+    val rutina2 = ("Rutina 2", List(Nadar(3), Nadar(3)))
+    val rutina3 = ("Rutina 3", List(Nadar(3)))
 
     val criterio = (p1: Pokemon, p2: Pokemon) => p1.velocidad > p2.velocidad
 
-    assertEquals("Rutina 2", obtenerMejorRutina(unSquartle, criterio, rutina1, rutina2, rutina3))
+    assertEquals("Rutina 2", analizarRutinas(unSquartle, criterio, rutina1, rutina2, rutina3))
   }
   
   @Test
   def `Ninguna rutina puede ser realizada por el pokemon ` = {
     val ataqueSinPuntos = Ataque(puntosDeAtaque = 0, efecto = (p: Pokemon) => Try(p.cambiarEnergia(1)))
      
-    val rutina1 = new Rutina("Rutina 1", RealizarUnAtaque(ataqueSinPuntos))
-    val rutina2 = new Rutina("Rutina 2", Nadar(10))
+    val rutina1 = ("Rutina 1", List(RealizarUnAtaque(ataqueSinPuntos)))
+    val rutina2 = ("Rutina 2", List(Nadar(10)))
 
     val criterio = (p1: Pokemon, p2: Pokemon) => p1.velocidad > p2.velocidad
 
 
-    assertEquals("Ninguna rutina", obtenerMejorRutina(unSquartle, criterio, rutina1, rutina2))
+    assertEquals("Ninguna rutina", analizarRutinas(unSquartle, criterio, rutina1, rutina2))
   }
 
 }
