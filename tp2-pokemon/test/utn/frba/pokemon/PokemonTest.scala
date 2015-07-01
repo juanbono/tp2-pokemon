@@ -75,7 +75,7 @@ class EvolucionTest {
     //Tipo de ataque es igual al tipo princial del pokemon.
     var pokemon =  Pokemon.make(estado = EstadoKO("KO"), experiencia = 1000, especie = Charmander).get
 
-    val resultado = UsarPocion.ejecutar(pokemon)
+    val resultado = UsarPocion(pokemon)
     
     assertTrue(resultado.isFailure)
 
@@ -87,9 +87,9 @@ class EvolucionTest {
     //Tipo de ataque es igual al tipo princial del pokemon.
     var ataque =  MordidaAtaque
     var pokemon =  Pokemon.make(experiencia = 1000, especie = Charmander, ataques = List(ataque)).get
-    var actividad = new RealizarUnAtaque(ataque)
+    var actividad = RealizarUnAtaque(ataque)
 
-    val resultado = actividad.ejecutar(pokemon).get
+    val resultado = actividad(pokemon).get
 
     assertEquals(3, resultado.nivel)
     assertEquals(1050, resultado.experiencia)
@@ -106,7 +106,7 @@ class EvolucionTest {
   @Test
   def `Evolucionar por usar piedra lunar` {
     var pokemon = Pokemon.make(especie = Nidorina).get
-    val resultado = UsarPiedra(PiedraLunar()).ejecutar(pokemon).get
+    val resultado = UsarPiedra(PiedraLunar())(pokemon).get
 
     assertEquals(1, resultado.nivel)
     assertEquals(resultado.especie, Nidoqueen)
@@ -116,7 +116,7 @@ class EvolucionTest {
   def `Evolucionar por usar piedra del mismo tipo` {
     var pokemon = Pokemon.make(especie = Poliwhirl).get
 
-    pokemon = UsarPiedra(PiedraEvolutivaComun(Agua)).ejecutar(pokemon).get
+    pokemon = UsarPiedra(PiedraEvolutivaComun(Agua))(pokemon).get
 
     assertTrue(pokemon.tipoPrincipal == Agua)
     assertEquals(pokemon.especie, Poliwrath)
@@ -128,7 +128,7 @@ class EvolucionTest {
 
     var piedra = PiedraEvolutivaComun(Electrico)
 
-    val resultado = UsarPiedra(piedra).ejecutar(pokemon).get
+    val resultado = UsarPiedra(piedra)(pokemon).get
 
     assertEquals(EstadoEnvenenado, resultado.estado)
   }
@@ -136,7 +136,7 @@ class EvolucionTest {
   @Test
   def `Actividad deja valores invalidos en pokemon.` {
     var pokemon = Pokemon.make(deltaVelocidad = 99, especie = Poliwhirl).get
-    var pokemonResultado = ComerCalcio.ejecutar(pokemon)
+    var pokemonResultado = ComerCalcio(pokemon)
      
     assertTrue(pokemonResultado.isFailure)
   }
