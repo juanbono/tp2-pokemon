@@ -11,7 +11,7 @@ import scala.util.{Try, Success, Failure}
 trait Actividad {
    def ejecutar(pokemon : Pokemon) : Try[Pokemon]
    
-   def apply(pokemon : Pokemon) : Try[Pokemon] = ejecutarActividad((p : Pokemon) => (this.ejecutar(p)))(pokemon)
+   def apply(pokemon : Pokemon) : Try[Pokemon] = pokemon.ejecutarActividad((p : Pokemon) => (this.ejecutar(p)))
   }
 
 case class RealizarUnAtaque(ataque: Ataque) extends Actividad {

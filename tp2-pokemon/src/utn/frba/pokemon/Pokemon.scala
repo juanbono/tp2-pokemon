@@ -94,7 +94,15 @@ case class Pokemon private (
   def cambiarExperiencia(dif: Long): Pokemon = copy(experiencia = experiencia + dif).actualizarEvoluciones()
   def cambiarEstado(estado : Estado): Pokemon = copy(estado = estado)
   
-  def puedeHacerActividad : Boolean = false
+  // ejecuta la actividad validando si puede o no realizarla asi como cambios de estado.
+  def ejecutarActividad(actividad : Pokemon => Try[Pokemon]) : Try[Pokemon] = {
+     estado match {
+       case EstadoKO(_) => Try(throw KOException("El pokemon no puede realizar la actividad porque esta KO"))
+       case EstadoDormido(1) => Try(cambiarEstado(EstadoNormal))
+       case EstadoDormido(x) => Try(cambiarEstado(EstadoDormido(x - 1)))
+       case _ =>  actividad(this)
+     }
+  }
 
 }
 

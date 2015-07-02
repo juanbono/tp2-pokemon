@@ -66,89 +66,84 @@ package object pokemon {
   }
   
   // *** Actividades ****
-  
-  // Funcion que ejecuta las actividades. Recibe una funcion (la actividad en si) y un Pokemon y devuelve un Try[Pokemon]
-  // Independiente de como esten implementadas las actividades (clases o funciones)
-  val ejecutarActividad : (Pokemon => Try[Pokemon]) => Pokemon => Try[Pokemon] = { actividad => pokemon =>
-    pokemon.estado match {
-       case EstadoKO(_) => Try(throw KOException("El pokemon no puede realizar la actividad porque esta KO"))
-       case EstadoDormido(1) => Try(pokemon.cambiarEstado(EstadoNormal))
-       case EstadoDormido(x) => Try(pokemon.cambiarEstado(EstadoDormido(x - 1)))
-       case _ => actividad(pokemon)
-     }
-  }
-  
-  
+ 
   // Actividades definidas como funciones. Esto iria en el bonus
   // Para que funcione comentar la clase Actividad entera
   
 //  type Actividad = Pokemon => Try[Pokemon]
 //  
-//  val RealizarUnAtaque : Ataque => Actividad = ataque => p => { ejecutarActividad((p : Pokemon) => (ataque(p)))(p) } 
+//  val RealizarUnAtaque : Ataque => Actividad = ataque => p => { p.ejecutarActividad { p => ataque(p) }}
 //  
-//  val LevantarPesas : Int => Actividad = kilos => p => {ejecutarActividad((pokemon : Pokemon) => (
+//  val LevantarPesas : Int => Actividad = kilos => p => {p.ejecutarActividad { pokemon => 
 //    pokemon match {
 //      case _ if pokemon.estado == EstadoParalizado => Try(pokemon.cambiarEstado(EstadoKO("Pokemon paralizado intento levantar pesas"))) 
 //      case _ if pokemon.algunTipoEs(Fantasma) => Try(throw InvalidPokemonTypeException("Los pokemon de tipo fantasma no pueden levantar pesas."))
 //      case _ if kilos / pokemon.fuerza > 10 => Try(pokemon.cambiarEstado(EstadoParalizado))
 //      case _ if pokemon.algunTipoEs(Pelea) => Try(pokemon.cambiarExperiencia(kilos * 2))
 //      case _ => Try(pokemon.cambiarExperiencia(kilos))
-//    }))(p)}
+//    }
+//    }}
 //  
-//  val Nadar : Int => Actividad = minutos => p => {ejecutarActividad((pokemon : Pokemon) => (
+//  val Nadar : Int => Actividad = minutos => p => {p.ejecutarActividad { pokemon => 
 //    pokemon match {
 //      case _ if (Agua.mataA(pokemon.tipoPrincipal) || Agua.mataA(pokemon.tipoSecundario.getOrElse(Agua))) =>  Try(pokemon.cambiarEstado(EstadoKO("El pokemon pierde contra el agua")))
 //      case _ => Try(pokemon.cambiarExperiencia(200).cambiarEnergia(-minutos).cambiarVelocidad(if (pokemon.tipoPrincipal == Agua) minutos % 60 else 0))
-//    }))(p)}
+//    }
+//    }}
 //
-//  val AprenderAtaque : Ataque => Actividad = ataque => p => {ejecutarActividad((pokemon : Pokemon) => (
+//  val AprenderAtaque : Ataque => Actividad = ataque => p => {p.ejecutarActividad { pokemon => 
 //    pokemon match {
 //      case _ if pokemon.algunTipoEs(ataque.tipo) || ataque.tipo == Normal => Try(pokemon.copy(ataques = ataque.copy(puntosDeAtaque = ataque.maximoInicialPA) :: pokemon.ataques))
 //      case _ => Try(pokemon.cambiarEstado(EstadoKO("Pokemon se lastimo trantando de aprender ataque")))
-//    }))(p)}
+//    }
+//    }}
 //  
-//  val UsarPiedra : PiedraEvolutiva => Actividad = piedra => p => {ejecutarActividad((pokemon : Pokemon) => (
+//  val UsarPiedra : PiedraEvolutiva => Actividad = piedra => p => {p.ejecutarActividad { pokemon => 
 //    pokemon match {
 //       case _ if piedra.tipo.mataA(pokemon.tipoPrincipal) || piedra.tipo.mataA(pokemon.tipoSecundario.getOrElse(null)) =>  Try(pokemon.cambiarEstado(EstadoEnvenenado))
 //       case _ => Try(pokemon.especie.condicionEvolucion.fold(pokemon)(_.evolucionar(pokemon, piedra)))
-//    }))(p)}
+//    }
+//    }}
 //  
-//  val UsarPocion : Actividad = p => {ejecutarActividad((p : Pokemon) => Try(p.cambiarEnergia(50)))(p)}
+//  val UsarPocion : Actividad = p => {p.ejecutarActividad { p => Try(p.cambiarEnergia(50))}}
 //
-//  val UsarAntidoto : Actividad = p => {ejecutarActividad((pokemon : Pokemon) => (
+//  val UsarAntidoto : Actividad = p => {p.ejecutarActividad { pokemon => 
 //     pokemon.estado match {
 //       case EstadoEnvenenado => Try(pokemon.cambiarEstado(EstadoNormal))
 //       case _ => Try(pokemon)
-//     }))(p)}
+//     }
+//    }}
 //  
-//  val UsarEther : Actividad = p => {ejecutarActividad((pokemon : Pokemon) => (
+//  val UsarEther : Actividad = p => {p.ejecutarActividad { pokemon => 
 //    pokemon.estado match {
 //     case EstadoKO(_) => Try(pokemon)
 //     case _ => Try(pokemon.cambiarEstado(EstadoNormal))
-//   }))(p)}
+//   }
+//   }}
 //  
-//  val ComerHierro : Actividad = p => {ejecutarActividad((p : Pokemon) => Try(p.cambiarFuerza(5)))(p)}
+//  val ComerHierro : Actividad = p => {p.ejecutarActividad { p => Try(p.cambiarFuerza(5)) }}
 //  
-//  val ComerCalcio : Actividad = p => {ejecutarActividad((p : Pokemon) => Try(p.cambiarVelocidad(5)))(p)}
+//  val ComerCalcio : Actividad = p => {p.ejecutarActividad { p => Try(p.cambiarVelocidad(5))}}
 //  
-//  val ComerZinc : Actividad = p => {ejecutarActividad((pokemon : Pokemon) => {
+//  val ComerZinc : Actividad = p => {p.ejecutarActividad { pokemon => 
 //    val ataquesModificados = pokemon.ataques.map (ataque => ataque.copy(maximoInicialPA = ataque.maximoInicialPA + 2))
 //    Try(pokemon.copy(ataques = ataquesModificados))
-//  })(p)}
+//  }}
 //
-//  val Descansar : Actividad = p => {ejecutarActividad((pokemon : Pokemon) => {
+//  val Descansar : Actividad = p => {p.ejecutarActividad { pokemon => 
 //   val ataquesModificados = pokemon.ataques.map (ataque => ataque.copy(puntosDeAtaque = ataque.maximoInicialPA))
 //   val pokemonResultado = pokemon.copy(ataques = ataquesModificados)
 //   pokemon.estado match {
 //     case EstadoNormal => if (pokemon.energia < pokemon.energiaMaxima / 2) Try(pokemonResultado.cambiarEstado(EstadoDormido(3))) else Try(pokemonResultado)
 //     case _            => Try(pokemonResultado)
-//   }})(p)}
-//  
-//  val FingirIntercambio : Actividad = p => {ejecutarActividad((pokemon : Pokemon) => {
+//   }
+//   }}
+//   
+//  val FingirIntercambio : Actividad = p => {p.ejecutarActividad { pokemon => 
 //    val nuevoPokemon = pokemon.especie.condicionEvolucion.fold(pokemon)(_.evolucionar(pokemon))
 //    if (nuevoPokemon.esHembra)
 //      Try(nuevoPokemon.cambiarPeso(-10))
 //    else
 //      Try(nuevoPokemon.cambiarPeso(1))
-//    })(p)}
+//    }}
 }

@@ -159,4 +159,5 @@ class EvolucionTest {
 
     assertEquals(paInicial - 1, resultado.ataques.find((a) => a == ataque.bajarPA).get.puntosDeAtaque)
   }
+  
 }
