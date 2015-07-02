@@ -61,3 +61,5 @@ object Poliwrath extends Especie (id = 62, tipoPrincipal = Agua, tipoSecundario 
 object Squirtle extends Especie (id = 7, resistenciaEvolutiva = 220, tipoPrincipal = Agua, evolucion = Some(Wartortle), condicionEvolucion = None)
 object Wartortle extends Especie (id = 8, resistenciaEvolutiva = 300,  tipoPrincipal = Agua, evolucion = Some(Blastoise), condicionEvolucion = None)
 object Blastoise extends Especie (id = 9, resistenciaEvolutiva = 400, tipoPrincipal = Agua, evolucion = None, condicionEvolucion = None)
+
+object Misdreavus extends Especie (id = 200, resistenciaEvolutiva = 220, tipoPrincipal = Fantasma, energiaMaximaInc = 100, condicionEvolucion = None)

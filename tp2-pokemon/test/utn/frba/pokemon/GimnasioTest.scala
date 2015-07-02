@@ -203,6 +203,22 @@ class GimnasioTest {
 
 
     assertEquals("Ninguna rutina", analizarRutinas(unSquartle, criterio, rutina1, rutina2))
+  } 
+  @Test
+  def `fantasma no puede levanta pesas` = {
+    val kilos = 5
+    val pokemon = Pokemon.make(experiencia = 0, energia = 0, especie = Misdreavus).get
+    val rutina = ("Rutina Fantasma", List( UsarPocion, LevantarPesas(kilos), UsarPocion))
+    val resultado = realizarRutina(pokemon, rutina)
+    
+    try {
+      resultado.get
+      fail()
+    } catch {
+        case InvalidPokemonTypeException(_) => 
+        case x : Throwable => fail("Deberia lanzar InvalidPokemonTypeException, pero lanzo %s".format(x));
+    }
   }
+  
 
 }
