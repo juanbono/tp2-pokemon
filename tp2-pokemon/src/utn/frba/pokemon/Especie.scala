@@ -55,10 +55,10 @@ object Nidorina extends Especie (id = 31, tipoPrincipal = Veneno, evolucion = So
 object Nidoqueen extends Especie (id = 32, tipoPrincipal = Veneno, tipoSecundario = Some(Tierra))
 
 object Poliwag extends Especie (id = 60, tipoPrincipal = Agua, evolucion = Some(Poliwhirl), condicionEvolucion = Some(new SubirNivelEvolucion(25)))
-object Poliwhirl extends Especie (id = 61, tipoPrincipal = Agua, evolucion = Some(Poliwrath), condicionEvolucion = Some(new UsarPiedraEvolucion))
+object Poliwhirl extends Especie (id = 61, tipoPrincipal = Agua, evolucion = Some(Poliwrath), condicionEvolucion = Some(UsarPiedraEvolucion))
 object Poliwrath extends Especie (id = 62, tipoPrincipal = Agua, tipoSecundario = Some(Pelea))
 
-object Squirtle extends Especie (id = 7, resistenciaEvolutiva = 220, tipoPrincipal = Agua, evolucion = Some(Wartortle), condicionEvolucion = None)
+object Squirtle extends Especie (id = 7, resistenciaEvolutiva = 220, tipoPrincipal = Agua, evolucion = Some(Wartortle), condicionEvolucion = Some(IntercambiarEvolucion))
 object Wartortle extends Especie (id = 8, resistenciaEvolutiva = 300,  tipoPrincipal = Agua, evolucion = Some(Blastoise), condicionEvolucion = None)
 object Blastoise extends Especie (id = 9, resistenciaEvolutiva = 400, tipoPrincipal = Agua, evolucion = None, condicionEvolucion = None)
 

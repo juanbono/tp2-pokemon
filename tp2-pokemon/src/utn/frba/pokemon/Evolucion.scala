@@ -19,11 +19,11 @@ case class SubirNivelEvolucion(val nivel : Int) extends CondicionEvolucion {
   }
 }
 
-case class IntercambiarEvolucion() extends CondicionEvolucion {
+case object IntercambiarEvolucion extends CondicionEvolucion {
   override def evolucionar(pokemon: Pokemon) = pokemon.evolucionar
 }
 
-case class UsarPiedraEvolucion() extends CondicionEvolucion {
+case object UsarPiedraEvolucion extends CondicionEvolucion {
   override def evolucionar(pokemon: Pokemon, piedra: PiedraEvolutiva) = {
     if (pokemon.especie.tipoPrincipal.equals(piedra.tipo)) {
       pokemon.evolucionar

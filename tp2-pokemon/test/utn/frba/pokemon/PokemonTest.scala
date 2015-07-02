@@ -109,7 +109,7 @@ class EvolucionTest {
     val resultado = UsarPiedra(PiedraLunar())(pokemon).get
 
     assertEquals(1, resultado.nivel)
-    assertEquals(resultado.especie, Nidoqueen)
+    assertEquals(Nidoqueen, resultado.especie)
   }
 
   @Test
@@ -119,7 +119,16 @@ class EvolucionTest {
     pokemon = UsarPiedra(PiedraEvolutivaComun(Agua))(pokemon).get
 
     assertTrue(pokemon.tipoPrincipal == Agua)
-    assertEquals(pokemon.especie, Poliwrath)
+    assertEquals(Poliwrath, pokemon.especie)
+  }
+  
+  @Test
+  def `Evolucionar por intercambio` {
+    var pokemon = Pokemon.make(especie = Squirtle).get
+
+    pokemon = FingirIntercambio(pokemon).get
+
+    assertEquals(Wartortle, pokemon.especie)
   }
 
   @Test
