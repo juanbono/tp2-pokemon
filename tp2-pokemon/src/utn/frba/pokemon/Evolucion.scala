@@ -2,29 +2,29 @@ package utn.frba.pokemon
 
 abstract class PiedraEvolutiva {def tipo : Tipo}
 case class PiedraEvolutivaComun(val tipo: Tipo) extends PiedraEvolutiva
-case class PiedraLunar(val tipo: Tipo = Normal) extends PiedraEvolutiva
+case class PiedraLunar(val tipo : Tipo = Normal) extends PiedraEvolutiva
 
 trait CondicionEvolucion {
-  def evolucionar(pokemon: Pokemon) = pokemon
-  def evolucionar(pokemon: Pokemon, piedra : PiedraEvolutiva) = pokemon
+  def intercambiar(pokemon: Pokemon) = pokemon
+  def subirNivel(pokemon: Pokemon) = pokemon
+  def usarPiedra(pokemon: Pokemon, piedra : PiedraEvolutiva) = pokemon 
 }
 
 case class SubirNivelEvolucion(val nivel : Int) extends CondicionEvolucion {
-  override def evolucionar(pokemon: Pokemon) = {
+  override def subirNivel(pokemon: Pokemon) = {
     if (pokemon.nivel >= nivel) {
-      pokemon.evolucionar
+      pokemon.evolucionar;
     } else {
       pokemon
     }
   }
 }
-
 case object IntercambiarEvolucion extends CondicionEvolucion {
-  override def evolucionar(pokemon: Pokemon) = pokemon.evolucionar
+  override def intercambiar(pokemon: Pokemon) = pokemon.evolucionar
 }
 
 case object UsarPiedraEvolucion extends CondicionEvolucion {
-  override def evolucionar(pokemon: Pokemon, piedra: PiedraEvolutiva) = {
+  override def usarPiedra(pokemon: Pokemon, piedra: PiedraEvolutiva) = {
     if (pokemon.especie.tipoPrincipal.equals(piedra.tipo)) {
       pokemon.evolucionar
     } else {
@@ -33,13 +33,11 @@ case object UsarPiedraEvolucion extends CondicionEvolucion {
   }
 }
 
-case class UsarPiedraLunarEvolucion() extends CondicionEvolucion {
-  override def evolucionar(pokemon: Pokemon, piedra: PiedraEvolutiva) = {
+case object UsarPiedraLunarEvolucion extends CondicionEvolucion {
+  override def usarPiedra(pokemon: Pokemon, piedra: PiedraEvolutiva) = {
     piedra match {
       case PiedraLunar(_) => pokemon.evolucionar
       case _ => pokemon
     }  
   }
 }
-
-

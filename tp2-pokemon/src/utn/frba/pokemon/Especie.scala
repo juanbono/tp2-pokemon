@@ -50,8 +50,8 @@ object Charizard extends Especie (
     tipoPrincipal = Fuego
     )
 
-object Nidorin extends Especie ( id = 30, tipoPrincipal = Veneno, evolucion = Some(Nidorina), condicionEvolucion = Some(new SubirNivelEvolucion(16)))
-object Nidorina extends Especie (id = 31, tipoPrincipal = Veneno, evolucion = Some(Nidoqueen), condicionEvolucion = Some(new UsarPiedraLunarEvolucion))
+object Nidorin extends Especie ( id = 30, tipoPrincipal = Veneno, evolucion = Some(Nidorina), condicionEvolucion = Some(SubirNivelEvolucion(16)))
+object Nidorina extends Especie (id = 31, tipoPrincipal = Veneno, evolucion = Some(Nidoqueen), condicionEvolucion = Some(UsarPiedraLunarEvolucion))
 object Nidoqueen extends Especie (id = 32, tipoPrincipal = Veneno, tipoSecundario = Some(Tierra))
 
 object Poliwag extends Especie (id = 60, tipoPrincipal = Agua, evolucion = Some(Poliwhirl), condicionEvolucion = Some(new SubirNivelEvolucion(25)))

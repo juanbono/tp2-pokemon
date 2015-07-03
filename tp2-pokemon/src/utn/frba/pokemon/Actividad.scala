@@ -57,7 +57,7 @@ case class UsarPiedra(piedra: PiedraEvolutiva) extends Actividad {
   def ejecutar(pokemon : Pokemon) : Try[Pokemon] = { 
     pokemon match {
        case _ if piedra.tipo.mataA(pokemon.tipoPrincipal) || piedra.tipo.mataA(pokemon.tipoSecundario.getOrElse(null)) =>  Try(pokemon.cambiarEstado(EstadoEnvenenado))
-       case _ => Try(pokemon.especie.condicionEvolucion.fold(pokemon)(_.evolucionar(pokemon, piedra)))
+       case _ => Try(pokemon.especie.condicionEvolucion.fold(pokemon)(_.usarPiedra(pokemon, piedra)))
     }
   }
 }
@@ -114,7 +114,7 @@ case object Descansar extends Actividad {
 
 case object FingirIntercambio extends Actividad {
   def ejecutar(pokemon : Pokemon) : Try[Pokemon] = {
-    val nuevoPokemon = pokemon.especie.condicionEvolucion.fold(pokemon)(_.evolucionar(pokemon))
+    val nuevoPokemon = pokemon.especie.condicionEvolucion.fold(pokemon)(_.intercambiar(pokemon))
     
     if (nuevoPokemon.esHembra)
       Try(nuevoPokemon.cambiarPeso(-10))

@@ -67,7 +67,7 @@ case class Pokemon private (
   }
   
   private def actualizarEvoluciones() : Pokemon = {
-    especie.condicionEvolucion.fold(this)(_.evolucionar(this))
+    especie.condicionEvolucion.fold(this)(_.subirNivel(this))
   }
   
   def evolucionar: Pokemon = {

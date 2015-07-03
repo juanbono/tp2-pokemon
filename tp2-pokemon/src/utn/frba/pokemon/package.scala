@@ -49,6 +49,10 @@ package object pokemon {
   def actividades(r: Rutina) = r._2
   def nombre(r: Rutina) = r._1
   
+  type ResultadoRutina = (Try[Pokemon], Rutina)
+  def pokemonEntrenado(rr: ResultadoRutina) = rr._1
+  def rutinaRealizada(rr: ResultadoRutina) = rr._2
+  
   // Ejecuta una secuencia de actividades sobre un pokemon
   def realizarRutina(pokemon: Pokemon, rutina: Rutina): Try[Pokemon] = actividades(rutina).foldLeft(Try(pokemon)) { (pokemonAnterior, actividadActual) =>
     pokemonAnterior.flatMap { pokemon => actividadActual(pokemon) }
@@ -56,12 +60,12 @@ package object pokemon {
   
   // Devuelve el nombre de la mejor rutina para un pokemon en base a un criterio.
   def analizarRutinas(pokemon: Pokemon, criterio: (Pokemon, Pokemon) => Boolean, rutinas: Rutina*): String = {
-    val rutinasFinalizadas = rutinas.map { rutina => (nombre(rutina), realizarRutina(pokemon, rutina)) }.filter { _._2.isSuccess }.map {tupla => (tupla._1, tupla._2.get)}
-    val mejorPokemon = rutinasFinalizadas.map {tupla => tupla._2}.sortWith(criterio).headOption
-       
-    mejorPokemon match {
-      case None    => "Ninguna rutina"
-      case Some(p) => rutinasFinalizadas.find(_._2 == p).get._1
+    val resultadosRutinas = rutinas.map { rutina => (realizarRutina(pokemon, rutina), rutina) }.filter { resultado: ResultadoRutina => resultado._1.isSuccess }
+    val mejorRutina = resultadosRutinas.sortWith((rr1, rr2) => criterio(pokemonEntrenado(rr1).get, pokemonEntrenado(rr2).get)).headOption
+
+    mejorRutina match {
+      case None     => "Ninguna rutina"
+      case Some(rr) => nombre(rutinaRealizada(rr))
     }
   }
   
