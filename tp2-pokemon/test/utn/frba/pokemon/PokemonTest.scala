@@ -160,5 +160,73 @@ class EvolucionTest {
 
     assertEquals(paInicial - 1, resultado.ataques.find((a) => a == ataque.bajarPA).get.puntosDeAtaque)
   }
+
+  @Test
+  def `Pokemon aprende un ataque afin a su especie` = {
+      val especie = Especie(id = 100, tipoPrincipal = Agua, tipoSecundario = Some(Bicho))
+      val ataque = Ataque(Bicho, puntosDeAtaque = 1, maximoInicialPA = 3, efecto =  (p: Pokemon) => Try(p.cambiarExperiencia(1)))
+      val pokemon = Pokemon.make(experiencia = 0, especie = especie).get
+      
+      //Ataque default
+      assertTrue(pokemon.ataques.length == 1)
+      
+      val resultado = AprenderAtaque(ataque)(pokemon).get
+      //Ataque aprendido
+      assertTrue(resultado.ataques.length == 2)
+  }
   
+  @Test
+  def `Pokemon aprende un ataque NO afin y se lastima` = {
+      val especie = Especie(id = 100, tipoPrincipal = Agua)
+      val ataque = Ataque(Bicho, puntosDeAtaque = 1, maximoInicialPA = 3, efecto =  (p: Pokemon) => Try(p.cambiarExperiencia(1)))
+      val pokemon = Pokemon.make(experiencia = 0, especie = especie).get
+      
+      //Ataque default
+      assertTrue(pokemon.ataques.length == 1)
+      
+      val resultado = AprenderAtaque(ataque)(pokemon).get
+      assertTrue(resultado.estado.isInstanceOf[EstadoKO])
+  }
+  
+  @Test
+  def `Pokemon envenenado usa ether y se recupera` = {
+      val pokemon = Pokemon.make(estado = EstadoEnvenenado, experiencia = 0, especie = Squirtle).get
+      
+      val resultado = UsarEther(pokemon).get
+      assertTrue(resultado.estado == EstadoNormal)
+  }
+  
+  @Test
+  def `Pokemon KO usa ether y no pasa nada` = {
+      val pokemon = Pokemon.make(estado = EstadoKO(""), experiencia = 0, especie = Squirtle).get
+      
+      val resultado = UsarEther(pokemon)
+      assertTrue(resultado.failed.get.isInstanceOf[KOException])
+  }
+    
+
+  @Test
+  def `Pokemon come zinc y aumento puntos de ataque` = {
+      val especie = Especie(id = 100, tipoPrincipal = Agua)
+      val ataque = Ataque(Bicho, puntosDeAtaque = 1, maximoInicialPA = 3, efecto =  (p: Pokemon) => Try(p.cambiarExperiencia(1)))
+      val pokemon = Pokemon.make(experiencia = 0, especie = especie, ataques = List(ataque)).get
+      
+      
+      val resultado = ComerZinc(pokemon).get
+      
+      assertEquals(5, resultado.ataques.head.maximoInicialPA)
+  }
+  
+  @Test
+  def `Pokemon descansa ` = {
+      val especie = Especie(id = 100, tipoPrincipal = Agua, energiaMaximaInc = 0)
+      val ataque = Ataque(Bicho, puntosDeAtaque = 1, maximoInicialPA = 50, efecto =  (p: Pokemon) => Try(p.cambiarExperiencia(1)))
+      val pokemon = Pokemon.make(experiencia = 0, energia = 0, energiaMaximaExtra = 100, especie = especie, ataques = List(ataque)).get
+         
+      val resultado = Descansar(pokemon).get
+      //Recupera al maximo lo PA
+      assertEquals(50, resultado.ataques.head.puntosDeAtaque)
+      //Al tener menos de 50% de energia se queda dormido
+      assertTrue(resultado.estado.isInstanceOf[EstadoDormido])
+  }
 }

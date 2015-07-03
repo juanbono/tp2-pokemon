@@ -72,7 +72,7 @@ package object pokemon {
   // *** Actividades ****
  
   // Actividades definidas como funciones. Esto iria en el bonus
-  // Para que funcione comentar la clase Actividad entera
+  // Para que funcione comentar la clase Actividad entera y descomentar lo de abajo
   
 //  type Actividad = Pokemon => Try[Pokemon]
 //  
@@ -105,7 +105,7 @@ package object pokemon {
 //  val UsarPiedra : PiedraEvolutiva => Actividad = piedra => p => {p.ejecutarActividad { pokemon => 
 //    pokemon match {
 //       case _ if piedra.tipo.mataA(pokemon.tipoPrincipal) || piedra.tipo.mataA(pokemon.tipoSecundario.getOrElse(null)) =>  Try(pokemon.cambiarEstado(EstadoEnvenenado))
-//       case _ => Try(pokemon.especie.condicionEvolucion.fold(pokemon)(_.evolucionar(pokemon, piedra)))
+//       case _ => Try(pokemon.especie.condicionEvolucion.fold(pokemon)(_.usarPiedra(pokemon, piedra)))
 //    }
 //    }}
 //  
@@ -144,7 +144,7 @@ package object pokemon {
 //   }}
 //   
 //  val FingirIntercambio : Actividad = p => {p.ejecutarActividad { pokemon => 
-//    val nuevoPokemon = pokemon.especie.condicionEvolucion.fold(pokemon)(_.evolucionar(pokemon))
+//    val nuevoPokemon = pokemon.especie.condicionEvolucion.fold(pokemon)(_.intercambiar(pokemon))
 //    if (nuevoPokemon.esHembra)
 //      Try(nuevoPokemon.cambiarPeso(-10))
 //    else
